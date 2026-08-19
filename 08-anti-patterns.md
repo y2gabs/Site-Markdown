@@ -1,0 +1,92 @@
+# Anti-Patterns — The "Generated Site" Tells
+
+Read this file **last, before finalizing**, and audit the build against it. Every item below
+is a specific, recognizable marker of machine-generated web design. Avoiding them does more
+for perceived quality than adding any new effect.
+
+---
+
+## 1. Color Tells
+
+| ❌ Tell | ✅ Instead |
+|---|---|
+| `from-purple-600 to-indigo-600` on anything | One accent hue from `02-color-system.md` |
+| Stock `blue-500` / `gray-900` / `slate-800` | A palette with chroma pushed into the neutrals |
+| Pure `#000` text on pure `#fff` | `oklch(22% .014 75)` on `oklch(98% .006 85)` |
+| Gradient headline text | Solid ink, with one word in display italic |
+| Three cards in three different accent colors | One accent; differentiate by content |
+| Rainbow / high-contrast-hue gradients | Analogous hues, lightness-driven |
+
+## 2. Layout Tells
+
+- **Everything centered.** A page where every section is a centered heading + centered
+  paragraph + centered 3-card grid is the signature of generated output. Break it: left-align
+  section headers, offset images, use asymmetric two-column splits (5/7, not 6/6).
+- **Uniform section rhythm.** Every section the same height with the same `py-24` produces a
+  metronome. Vary: a tall hero, a tight band, a generous editorial block, a short dark CTA.
+- **The eternal 3-card grid.** If three feature cards appear more than once on a page, one of
+  them should become something else — a two-column feature with a real image, an offset list,
+  a numbered process row, or a stat band.
+- **Full-width everything.** Not every section needs the same container. Alternate a
+  `max-w-6xl` container with a full-bleed image band and a narrow `max-w-2xl` editorial column.
+- **Perfectly symmetric hero.** Offset it. Let the image bleed off one edge.
+
+## 3. Component Tells
+
+- **Emoji as icons** (🚀 ⚡ 💡 ✨). Instantly reads as generated. Use inline SVG line icons at
+  1.5px stroke, or a numbered/typographic treatment instead.
+- **`rounded-lg` on everything.** Timid and default. Commit to a radius language:
+  `rounded-none`/`rounded-sm` (editorial, luxury), `rounded-2xl`/`rounded-3xl` (soft, modern),
+  `rounded-full` for pills and avatars. Then apply it consistently.
+- **`shadow-lg` / `shadow-xl`.** Harsh and gray. Use expansive low-opacity custom shadows:
+  `shadow-[0_24px_60px_-20px_oklch(22%_0.03_75_/_0.18)]`.
+- **Gray placeholder rectangles** where photography belongs. If no image is available, use a
+  tinted accent wash with a subtle pattern or a typographic composition — never `bg-gray-200`.
+- **Borders on everything.** Prefer separation by whitespace and background shift; use
+  hairlines (`border-line`) only where genuine division is needed.
+- **A visible scrollbar-width layout shift** when a modal opens.
+
+## 4. Copy Tells
+
+- Lorem Ipsum. (Already banned in `05-copywriting-cro.md` — it remains the #1 violation.)
+- "Welcome to our website" / "We are a company that…"
+- Buttons reading "Learn More," "Submit," "Click Here," "Get Started" with no object.
+- Testimonials from "John D." with no title, company, or photo.
+- Feature headings that name the feature instead of the outcome ("Advanced Analytics
+  Dashboard" vs. "Know what's working by Monday morning").
+- Three testimonials of identical length — real quotes vary.
+- Stat blocks with implausibly round numbers (100%, 1000+, 24/7 on every site).
+
+## 5. Motion Tells
+
+- No motion at all.
+- Elements re-animating every time they scroll into view.
+- `transition-all duration-300` on every element indiscriminately.
+- Bounce easing on a professional service site.
+- Parallax so strong the background visibly detaches.
+
+## 6. Accessibility Tells
+
+- White text directly on a photo with no scrim.
+- `outline-none` with nothing replacing it.
+- `text-gray-400` on `bg-gray-100`.
+- Icon-only buttons with no `aria-label`.
+- Clickable `<div>`s instead of `<button>`/`<a>`.
+- A sticky header that covers content when jumping to an anchor (fix with `scroll-mt-24`).
+
+---
+
+## The Final Audit
+
+Before shipping, ask these five questions honestly:
+
+1. **Could I identify the industry with the text removed?** If not, the visual system is doing
+   no work — the photography, palette, and type aren't specific enough.
+2. **Is there one thing here I haven't seen on a hundred other sites?** Every build needs one
+   signature move (see the Signature Detail line in `01-design-system.md`).
+3. **Does the eye have a clear path through each section?** One dominant element per viewport.
+   If three things compete, two need to shrink.
+4. **Is the accent scarce enough to still mean something?**
+5. **Does it survive at 375px wide?** Not just "doesn't break" — is it still *good*?
+
+If any answer is no, the fix is almost always **subtraction**, not addition.
