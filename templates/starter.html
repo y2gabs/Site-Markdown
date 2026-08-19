@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Infinessence — Sound Therapy</title>
+<meta name="description" content="Tailored sound bath sessions designed to quiet a restless mind and restore deep rest." />
+
+<!-- ── Fonts ─────────────────────────────────────────────────────────────── -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  /* Alpha-aware OKLCH bridge — makes bg-accent/10, text-ink/70 etc. work. */
+  const withAlpha = (v) => ({ opacityValue }) =>
+    opacityValue === undefined ? `oklch(var(${v}))` : `oklch(var(${v}) / ${opacityValue})`;
+
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ground: withAlpha('--ground'),   surface: withAlpha('--surface'),
+          ink:    withAlpha('--ink'),      muted:   withAlpha('--muted'),
+          line:   withAlpha('--line'),     accent:  withAlpha('--accent'),
+          'accent-ink': withAlpha('--accent-ink'),
+        },
+        fontFamily: {
+          display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+          sans:    ['"Work Sans"', 'system-ui', 'sans-serif'],
+        },
+        fontSize: {
+          'display-xl': ['clamp(3rem, 8vw, 7rem)',         { lineHeight: '0.95', letterSpacing: '-0.03em' }],
+          'display-lg': ['clamp(2.5rem, 6vw, 5rem)',       { lineHeight: '1.0',  letterSpacing: '-0.025em' }],
+          'display-md': ['clamp(2rem, 4.5vw, 3.5rem)',     { lineHeight: '1.08', letterSpacing: '-0.02em' }],
+          'display-sm': ['clamp(1.5rem, 3vw, 2.25rem)',    { lineHeight: '1.2',  letterSpacing: '-0.01em' }],
+          'body-lg':    ['clamp(1.05rem, 1.4vw, 1.25rem)', { lineHeight: '1.65' }],
+          'overline':   ['0.75rem', { lineHeight: '1', letterSpacing: '0.18em' }],
+        },
+        transitionTimingFunction: {
+          'out-expo':    'cubic-bezier(0.16, 1, 0.3, 1)',
+          'out-quart':   'cubic-bezier(0.25, 1, 0.5, 1)',
+          'in-out-soft': 'cubic-bezier(0.65, 0, 0.35, 1)',
+        },
+        transitionDuration: { 400: '400ms', 600: '600ms', 800: '800ms' },
+        boxShadow: {
+          soft: '0 8px 24px -12px oklch(22% 0.03 75 / 0.14)',
+          lift: '0 24px 60px -20px oklch(22% 0.03 75 / 0.20)',
+          glow: '0 0 48px -8px oklch(var(--accent) / 0.35)',
+        },
+        maxWidth: { measure: '65ch', headline: '18ch' },
+      },
+    },
+  };
+</script>
+
+<style>
+  /* ── Palette ────────────────────────────────────────────────────────────
+     Channel triplets only (L C H) so the alpha bridge above can compose them.
+     Swap the hue (last number) to re-theme the entire page.
+     Reference: 02-color-system.md                                          */
+  :root {
+    --ground:     97.5% 0.008 68;
+    --surface:    100%  0.004 68;
+    --ink:        23%   0.016 68;
+    --muted:      50%   0.014 68;
+    --line:       91%   0.008 68;
+    --accent:     56%   0.106 42;
+    --accent-ink: 98%   0.008 42;
+  }
+  body { background: oklch(var(--ground)); color: oklch(var(--ink)); }
+
+  /* Hero intro — H1 is visible at paint; supporting elements stagger in. */
+  @keyframes rise { from { opacity: 0; transform: translate3d(0, 18px, 0); } to { opacity: 1; transform: none; } }
+  .intro > * { animation: rise .9s cubic-bezier(.16,1,.3,1) both; }
+  .intro > *:nth-child(1) { animation-delay: 0s;   }
+  .intro > *:nth-child(2) { animation-delay: .08s; }
+  .intro > *:nth-child(3) { animation-delay: .18s; }
+  .intro > *:nth-child(4) { animation-delay: .28s; }
+
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important; scroll-behavior: auto !important;
+    }
+  }
+</style>
+</head>
+
+<body class="font-sans antialiased">
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ══ Replace with real photography. Seeded so layout stays stable. ══════ */
+const IMG = {
+  hero:    'https://picsum.photos/seed/soundbath-hero/1920/1280',
+  studio:  'https://picsum.photos/seed/soundbath-studio/1200/1500',
+  bowls:   'https://picsum.photos/seed/soundbath-bowls/1200/900',
+  session: 'https://picsum.photos/seed/soundbath-session/1200/900',
+  group:   'https://picsum.photos/seed/soundbath-group/1200/900',
+};
+
+/* ══ Hooks (see 07-react-tailwind-snippets.md) ═════════════════════════ */
+const useScrollY = () => {
+  const [y, setY] = useState(0);
+  useEffect(() => {
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => { setY(window.scrollY); ticking = false; });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return y;
+};
+
+const usePrefersReducedMotion = () => {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReduced(mq.matches);
+    const on = (e) => setReduced(e.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
+  return reduced;
+};
+
+const useInView = (options) => {
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (!('IntersectionObserver' in window)) { setInView(true); return; }
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setInView(true); obs.unobserve(el); }
+    }, Object.assign({ threshold: 0.15, rootMargin: '0px 0px -10% 0px' }, options || {}));
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, inView];
+};
+
+/* ══ Primitives ════════════════════════════════════════════════════════ */
+const Reveal = ({ children, delay = 0, y = 24, className = '' }) => {
+  const [ref, inView] = useInView();
+  const reduced = usePrefersReducedMotion();
+  const show = inView || reduced;
+  return (
+    <div ref={ref}
+      className={'transition-[opacity,transform] duration-800 ease-out-expo ' + className}
+      style={{
+        opacity: show ? 1 : 0,
+        transform: show ? 'none' : 'translate3d(0,' + y + 'px,0)',
+        transitionDelay: reduced ? '0ms' : delay + 'ms',
+      }}>
+      {children}
+    </div>
+  );
+};
+
+const Overline = ({ children, className = '' }) => (
+  <p className={'text-overline uppercase font-medium text-accent ' + className}>
+    <span className="mr-3 inline-block h-px w-8 bg-accent align-middle" />
+    {children}
+  </p>
+);
+
+const Button = ({ as: Tag = 'a', variant = 'primary', className = '', children, ...rest }) => {
+  const base = 'inline-flex items-center justify-center gap-2 min-h-[48px] px-8 py-3 text-sm ' +
+    'font-medium rounded-full transition-[transform,box-shadow,background-color] duration-300 ' +
+    'ease-out-expo focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ' +
+    'focus-visible:ring-offset-2 focus-visible:ring-offset-ground';
+  const variants = {
+    primary: 'bg-accent text-accent-ink shadow-soft hover:-translate-y-0.5 hover:shadow-lift',
+    ghost:   'border border-line text-ink hover:border-ink/40 hover:-translate-y-0.5',
+    onDark:  'bg-surface text-ink hover:-translate-y-0.5 hover:shadow-lift',
+  };
+  return <Tag className={base + ' ' + variants[variant] + ' ' + className} {...rest}>{children}</Tag>;
+};
+
+const Arrow = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4 transition-transform duration-300 ease-out-expo group-hover:translate-x-1"
+       fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+    <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+/* ══ Navigation ════════════════════════════════════════════════════════ */
+const LINKS = [
+  { href: '#approach', label: 'Approach' },
+  { href: '#sessions', label: 'Sessions' },
+  { href: '#stories',  label: 'Stories'  },
+  { href: '#questions',label: 'Questions'},
+];
+
+const Nav = () => {
+  const solid = useScrollY() > 40;
+  const [open, setOpen] = useState(false);
+  return (
+    <header className={'fixed inset-x-0 top-0 z-50 border-b transition-[background-color,backdrop-filter,border-color] duration-300 ease-out-quart ' +
+      (solid ? 'bg-ground/80 backdrop-blur-md border-line' : 'bg-transparent border-transparent')}>
+      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4" aria-label="Primary">
+        <a href="#" className={'font-display text-2xl tracking-tight transition-colors ' + (solid ? 'text-ink' : 'text-white')}>
+          Infinessence
+        </a>
+        <ul className="hidden items-center gap-8 md:flex">
+          {LINKS.map((l) => (
+            <li key={l.href}>
+              <a href={l.href}
+                 className={'group relative text-sm transition-colors ' + (solid ? 'text-ink/75 hover:text-ink' : 'text-white/85 hover:text-white')}>
+                {l.label}
+                <span className="absolute -bottom-1 left-0 h-px w-0 bg-accent transition-[width] duration-300 ease-out-expo group-hover:w-full" />
+              </a>
+            </li>
+          ))}
+          <li><Button href="#book" className="!px-6">Reserve a Session</Button></li>
+        </ul>
+        <button onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? 'Close menu' : 'Open menu'}
+                className={'grid h-11 w-11 place-items-center rounded-full md:hidden ' + (solid ? 'text-ink' : 'text-white')}>
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d={open ? 'M6 6l12 12M18 6L6 18' : 'M3 7h18M3 17h18'} strokeLinecap="round" />
+          </svg>
+        </button>
+      </nav>
+      {open && (
+        <ul className="border-t border-line bg-ground px-6 py-2 md:hidden">
+          {LINKS.map((l) => (
+            <li key={l.href}>
+              <a href={l.href} onClick={() => setOpen(false)}
+                 className="flex min-h-[48px] items-center text-ink">{l.label}</a>
+            </li>
+          ))}
+          <li className="py-3"><Button href="#book" onClick={() => setOpen(false)} className="w-full">Reserve a Session</Button></li>
+        </ul>
+      )}
+    </header>
+  );
+};
+
+/* ══ Hero — parallax + mandatory scrim ═════════════════════════════════ */
+const Hero = () => {
+  const scrollY = useScrollY();
+  const reduced = usePrefersReducedMotion();
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    setWide(mq.matches);
+    const on = (e) => setWide(e.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
+  const offset = wide && !reduced ? scrollY * 0.28 : 0;
+
+  return (
+    <section className="relative isolate flex min-h-[92vh] items-end overflow-hidden">
+      <img src={IMG.hero} alt=""
+           className="absolute inset-0 -z-20 h-[125%] w-full object-cover"
+           style={{ transform: 'translate3d(0,' + offset + 'px,0)', willChange: 'transform' }} />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/85 via-ink/45 to-ink/55" />
+      <div className="mx-auto w-full max-w-6xl px-6 pb-24 pt-40">
+        <div className="intro max-w-headline">
+          <h1 className="font-display text-display-xl text-balance text-white">
+            Quiet the noise <em className="italic">you've stopped noticing</em>
+          </h1>
+          <p className="mt-8 max-w-measure text-body-lg text-pretty text-white/80">
+            Sound baths at Infinessence use tuned bowls and gong resonance to slow the nervous
+            system into the same state as deep sleep — in 60 minutes, lying still, doing nothing.
+          </p>
+          <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+            <Button href="#book" className="group">Reserve Your First Session <Arrow /></Button>
+            <Button href="#approach" variant="onDark">See how a session works</Button>
+          </div>
+          <p className="mt-6 text-sm text-white/60">
+            First session $50 · No experience needed · Mats and blankets provided
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ══ Social proof marquee ══════════════════════════════════════════════ */
+const PROOF = ['Featured in Calgary Herald', 'Avenue Magazine', 'Wellness YYC',
+               'Mindful Alberta', 'CBC Radio One', 'The Local Collective'];
+
+const Proof = () => (
+  <section className="border-y border-line bg-surface py-8" aria-label="Featured in">
+    <div className="group relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]">
+      <div className="flex w-max gap-16 group-hover:[animation-play-state:paused]"
+           style={{ animation: 'marquee 42s linear infinite' }}>
+        {PROOF.concat(PROOF).map((item, i) => (
+          <span key={i} aria-hidden={i >= PROOF.length}
+                className="shrink-0 text-overline uppercase text-muted">{item}</span>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+/* ══ PAS — asymmetric 5/7 split, image bleeds ══════════════════════════ */
+const Approach = () => (
+  <section id="approach" className="scroll-mt-24 py-24 md:py-32">
+    <div className="mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-12 md:gap-16">
+      <Reveal className="md:col-span-5">
+        <div className="relative">
+          <img src={IMG.studio} alt="The Infinessence studio, arranged with mats and singing bowls"
+               loading="lazy"
+               className="aspect-[4/5] w-full rounded-sm object-cover shadow-lift" />
+          <div className="absolute -bottom-8 -right-6 hidden rounded-sm bg-accent px-8 py-6 text-accent-ink shadow-lift lg:block">
+            <p className="font-display text-4xl tabular-nums">60</p>
+            <p className="mt-1 text-overline uppercase">minutes</p>
+          </div>
+        </div>
+      </Reveal>
+
+      <div className="md:col-span-7 md:pt-8">
+        <Reveal><Overline>01 — The Problem</Overline></Reveal>
+        <Reveal delay={80}>
+          <h2 className="mt-6 max-w-headline font-display text-display-md text-balance">
+            You can't think your way into rest
+          </h2>
+        </Reveal>
+        <Reveal delay={160}>
+          <div className="mt-8 max-w-measure space-y-5 text-muted text-pretty">
+            <p>
+              You lie down at 11pm and your mind starts its second shift. Tomorrow's meeting.
+              The email you didn't send. The conversation from four years ago that still stings.
+            </p>
+            <p>
+              You've tried the apps, the magnesium, the 10pm screen cutoff. They ask a tired
+              mind to discipline itself — which is exactly the thing it can no longer do.
+            </p>
+            <p className="text-ink">
+              Sound doesn't ask anything of you. Sustained resonance shifts brainwave activity
+              toward theta — the state between waking and sleep — without effort, technique,
+              or belief. You lie down. The room does the work.
+            </p>
+          </div>
+        </Reveal>
+        <Reveal delay={240}>
+          <a href="#sessions" className="group mt-10 inline-flex items-center gap-2 text-sm font-medium text-ink">
+            <span className="relative">
+              Explore the sessions
+              <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-accent transition-[width] duration-300 ease-out-expo group-hover:w-full" />
+            </span>
+            <Arrow />
+          </a>
+        </Reveal>
+      </div>
+    </div>
+  </section>
+);
+
+/* ══ Sessions — image cards ════════════════════════════════════════════ */
+const SESSIONS = [
+  { img: IMG.session, tag: 'Private', title: 'Private Sound Healing',
+    body: 'One-to-one, built around what your body is holding. Bowls placed on and around you for direct resonance.',
+    meta: '75 min · $100' },
+  { img: IMG.bowls, tag: 'Group', title: 'Community Sound Bath',
+    body: 'Twelve people, one room, full darkness. The most common first session — and the easiest to surrender to.',
+    meta: '60 min · $50' },
+  { img: IMG.group, tag: 'Workshop', title: 'Sound Journey Workshop',
+    body: 'A half-day intensive: breathwork, extended immersion, and instruction you can take home.',
+    meta: '4 hrs · $150' },
+];
+
+const Sessions = () => (
+  <section id="sessions" className="scroll-mt-24 bg-surface py-24 md:py-32">
+    <div className="mx-auto max-w-6xl px-6">
+      <div className="max-w-headline">
+        <Reveal><Overline>02 — Sessions</Overline></Reveal>
+        <Reveal delay={80}>
+          <h2 className="mt-6 font-display text-display-md text-balance">Three ways in</h2>
+        </Reveal>
+      </div>
+      <div className="mt-16 grid gap-8 md:grid-cols-3">
+        {SESSIONS.map((s, i) => (
+          <Reveal key={s.title} delay={Math.min(i, 5) * 90}>
+            <a href="#book" className="group block h-full">
+              <article className="flex h-full flex-col overflow-hidden rounded-sm bg-ground shadow-soft transition-[transform,box-shadow] duration-500 ease-out-expo group-hover:-translate-y-1 group-hover:shadow-lift">
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img src={s.img} alt={s.title} loading="lazy"
+                       className="h-full w-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-[1.04]" />
+                </div>
+                <div className="flex flex-1 flex-col p-8">
+                  <p className="text-overline uppercase text-accent">{s.tag}</p>
+                  <h3 className="mt-4 font-display text-display-sm">{s.title}</h3>
+                  <p className="mt-3 flex-1 text-muted text-pretty">{s.body}</p>
+                  <p className="mt-6 border-t border-line pt-4 text-sm tabular-nums text-ink">{s.meta}</p>
+                </div>
+              </article>
+            </a>
+          </Reveal>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+/* ══ Dark stat band — punctuation, not the whole page ══════════════════ */
+const CountUp = ({ end, suffix = '' }) => {
+  const [ref, inView] = useInView({ threshold: 0.4 });
+  const reduced = usePrefersReducedMotion();
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    if (!inView) return;
+    if (reduced) { setV(end); return; }
+    let raf, start;
+    const step = (t) => {
+      if (start === undefined) start = t;
+      const p = Math.min((t - start) / 1600, 1);
+      setV(Math.round(end * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, end, reduced]);
+  return <span ref={ref} className="tabular-nums">{v.toLocaleString()}{suffix}</span>;
+};
+
+const STATS = [
+  { n: 1847, s: '',  label: 'Sessions held since 2019' },
+  { n: 94,   s: '%', label: 'Report falling asleep faster' },
+  { n: 12,   s: '',  label: 'People per group session' },
+];
+
+const Stats = () => (
+  <section className="bg-ink py-20 text-ground [--accent:70%_0.12_42]">
+    <div className="mx-auto grid max-w-6xl gap-12 px-6 sm:grid-cols-3">
+      {STATS.map((s, i) => (
+        <Reveal key={s.label} delay={i * 90}>
+          <p className="font-display text-display-lg text-accent"><CountUp end={s.n} suffix={s.s} /></p>
+          <p className="mt-3 max-w-[20ch] text-sm text-ground/65">{s.label}</p>
+        </Reveal>
+      ))}
+    </div>
+  </section>
+);
+
+/* ══ Testimonials — varied length, real attribution ════════════════════ */
+const QUOTES = [
+  { q: 'I went in sceptical — I assumed it was going to be someone tapping a bowl at me for an hour. Twenty minutes in I lost track of where my hands were. I slept through the night for the first time since my daughter was born.',
+    n: 'Marguerite Okonjo', r: 'ICU nurse, Calgary' },
+  { q: 'My physio recommended it for jaw tension. Three sessions and I stopped waking up with a headache.',
+    n: 'Devesh Ramaswamy', r: 'Structural engineer' },
+  { q: 'It is the only hour of my week where nobody needs anything from me.',
+    n: 'Halldóra Bjarnadóttir', r: 'Mother of three' },
+];
+
+const Stories = () => (
+  <section id="stories" className="scroll-mt-24 py-24 md:py-32">
+    <div className="mx-auto max-w-6xl px-6">
+      <Reveal><Overline>03 — Stories</Overline></Reveal>
+      <div className="mt-16 grid gap-12 md:grid-cols-3">
+        {QUOTES.map((t, i) => (
+          <Reveal key={t.n} delay={i * 90}>
+            <figure className="flex h-full flex-col border-t border-line pt-8">
+              <blockquote className="flex-1 font-display text-2xl leading-snug text-pretty">
+                “{t.q}”
+              </blockquote>
+              <figcaption className="mt-8 flex items-center gap-4">
+                <img src={'https://picsum.photos/seed/face' + i + '/96/96'} alt=""
+                     loading="lazy" className="h-12 w-12 rounded-full object-cover" />
+                <span>
+                  <span className="block text-sm font-medium text-ink">{t.n}</span>
+                  <span className="block text-sm text-muted">{t.r}</span>
+                </span>
+              </figcaption>
+            </figure>
+          </Reveal>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+/* ══ FAQ — 0fr→1fr accordion ═══════════════════════════════════════════ */
+const FAQ = [
+  { q: 'Do I need to know how to meditate?',
+    a: 'No. That is the point of sound over meditation — there is no technique to get right. You lie down and listen. Most people who "cannot meditate" find this significantly easier.' },
+  { q: 'What if I fall asleep?',
+    a: 'Many people do, and it is not a failure. Your nervous system still registers the resonance. If you snore, nobody will mind; it happens most sessions.' },
+  { q: 'What should I bring?',
+    a: 'Comfortable layers and socks. Mats, bolsters, blankets and eye pillows are provided. The room runs cool because body temperature drops as you settle.' },
+  { q: 'Is there anyone who should not attend?',
+    a: 'Sound baths are generally safe, but check with your doctor first if you have epilepsy, a pacemaker, or are in the first trimester of pregnancy. We are happy to discuss adjustments.' },
+];
+
+const Questions = () => {
+  const [open, setOpen] = useState(0);
+  return (
+    <section id="questions" className="scroll-mt-24 bg-surface py-24 md:py-32">
+      <div className="mx-auto max-w-3xl px-6">
+        <Reveal><Overline>04 — Questions</Overline></Reveal>
+        <Reveal delay={80}>
+          <h2 className="mt-6 font-display text-display-md text-balance">Before your first session</h2>
+        </Reveal>
+        <Reveal delay={160}>
+          <div className="mt-12 divide-y divide-line border-y border-line">
+            {FAQ.map((item, i) => {
+              const isOpen = open === i;
+              return (
+                <div key={i}>
+                  <button onClick={() => setOpen(isOpen ? -1 : i)} aria-expanded={isOpen}
+                          className="flex min-h-[48px] w-full items-center justify-between gap-6 py-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4 focus-visible:ring-offset-surface">
+                    <span className="font-display text-display-sm">{item.q}</span>
+                    <span aria-hidden="true"
+                          className={'shrink-0 text-accent transition-transform duration-300 ease-out-quart ' + (isOpen ? 'rotate-45' : '')}>
+                      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+                      </svg>
+                    </span>
+                  </button>
+                  <div className="grid transition-[grid-template-rows] duration-400 ease-in-out-soft"
+                       style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}>
+                    <div className="overflow-hidden">
+                      <p className="max-w-measure pb-6 text-muted text-pretty">{item.a}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+};
+
+/* ══ Final CTA ═════════════════════════════════════════════════════════ */
+const Book = () => {
+  const [sent, setSent] = useState(false);
+  return (
+    <section id="book" className="relative scroll-mt-24 overflow-hidden bg-ink py-24 text-ground md:py-32 [--accent:70%_0.12_42]">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        <div className="absolute -top-40 left-1/4 h-[36rem] w-[36rem] rounded-full bg-accent/20 blur-[120px]" />
+        <div className="absolute -bottom-52 right-1/4 h-[30rem] w-[30rem] rounded-full bg-accent/10 blur-[140px]" />
+      </div>
+      <div className="relative mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-2 md:gap-20">
+        <div>
+          <Overline>05 — Reserve</Overline>
+          <h2 className="mt-6 max-w-headline font-display text-display-md text-balance">
+            The next group session is Thursday
+          </h2>
+          <p className="mt-6 max-w-measure text-ground/70 text-pretty">
+            Leave your details and we'll send available times. No obligation, and no marketing
+            list you have to escape from later.
+          </p>
+        </div>
+
+        <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setSent(true); }}>
+          {sent ? (
+            <p role="status" className="rounded-sm border border-white/15 bg-white/5 p-8 text-ground">
+              Thank you — we'll be in touch within one business day with available times.
+            </p>
+          ) : (
+            <React.Fragment>
+              <div>
+                <label htmlFor="name" className="block text-sm text-ground/80">Name</label>
+                <input id="name" name="name" required autoComplete="name"
+                       className="mt-2 min-h-[48px] w-full rounded-sm border border-white/15 bg-white/5 px-4 text-ground placeholder-ground/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" />
+              </div>
+              <div>
+                <label htmlFor="email" className="block text-sm text-ground/80">Email</label>
+                <input id="email" name="email" type="email" required autoComplete="email"
+                       className="mt-2 min-h-[48px] w-full rounded-sm border border-white/15 bg-white/5 px-4 text-ground placeholder-ground/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" />
+              </div>
+              <Button as="button" type="submit" className="group w-full">
+                Send My Request <Arrow />
+              </Button>
+              <p className="text-sm text-ground/55">
+                We reply within one business day · Your details are never shared
+              </p>
+            </React.Fragment>
+          )}
+        </form>
+      </div>
+    </section>
+  );
+};
+
+/* ══ Footer ════════════════════════════════════════════════════════════ */
+const Footer = () => (
+  <footer className="border-t border-line bg-ground py-16">
+    <div className="mx-auto max-w-6xl px-6">
+      <div className="flex flex-col justify-between gap-10 md:flex-row">
+        <div>
+          <p className="font-display text-2xl">Infinessence</p>
+          <p className="mt-3 max-w-[32ch] text-sm text-muted">
+            Sound therapy studio in Calgary, Alberta. Open Wednesday through Sunday.
+          </p>
+        </div>
+        <nav aria-label="Footer" className="flex gap-16">
+          <ul className="space-y-3 text-sm">
+            {LINKS.map((l) => (
+              <li key={l.href}>
+                <a href={l.href} className="text-muted transition-colors hover:text-ink">{l.label}</a>
+              </li>
+            ))}
+          </ul>
+          <ul className="space-y-3 text-sm">
+            <li><a href="#book" className="text-muted transition-colors hover:text-ink">Book</a></li>
+            <li><a href="#" className="text-muted transition-colors hover:text-ink">Gift cards</a></li>
+            <li><a href="#" className="text-muted transition-colors hover:text-ink">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+      <p className="mt-12 border-t border-line pt-8 text-sm text-muted">
+        © {new Date().getFullYear()} Infinessence Sound Therapy. All rights reserved.
+      </p>
+    </div>
+  </footer>
+);
+
+/* ══ App ═══════════════════════════════════════════════════════════════ */
+const App = () => (
+  <React.Fragment>
+    <a href="#main"
+       className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-surface focus:px-6 focus:py-3 focus:text-ink">
+      Skip to content
+    </a>
+    <Nav />
+    <main id="main">
+      <Hero />
+      <Proof />
+      <Approach />
+      <Sessions />
+      <Stats />
+      <Stories />
+      <Questions />
+      <Book />
+    </main>
+    <Footer />
+  </React.Fragment>
+);
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
