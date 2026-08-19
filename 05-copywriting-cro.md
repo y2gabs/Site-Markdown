@@ -1,33 +1,126 @@
+# Conversion Rate Optimization (CRO) & Copywriting
 
-# Conversion Rate Optimization (CRO) & Copywriting Rules
+When generating text for landing pages, **NEVER use "Lorem Ipsum."** Always write realistic,
+industry-specific copy using the frameworks below. Placeholder copy is the fastest way to make
+a beautiful layout look unfinished — and it makes the design impossible to evaluate, because
+real copy has real lengths.
 
-When generating text for landing pages, **NEVER use "Lorem Ipsum"**. Always write realistic, industry-specific copy using the following psychological frameworks.
+---
 
-## Standard High-Converting Section Order
-Unless explicitly told otherwise, structure landing pages in this exact flow:
-1.  **Hero:** The big promise. What is it, who is it for, and the main CTA.
-2.  **Social Proof:** "Trusted by" logos or authority badges (placed immediately below the fold).
-3.  **Problem/Solution (PAS):** Acknowledge the user's pain point, then introduce the service as the solution.
-4.  **Features/Benefits Grid:** "Rule of 3" or "Rule of 6". Focus on *outcomes*, not just features.
-5.  **Testimonials:** 2-3 highly specific quotes featuring a name, title, and photo.
-6.  **Final CTA / Contact:** A repetition of the main offer with a lead capture form.
-7.  **Footer:** Copyright, links, and social icons.
+## 1. Standard High-Converting Section Order
 
-## Copywriting Formulas
+Unless explicitly told otherwise, structure landing pages in this flow:
 
-### 1. PAS Formula (Problem, Agitation, Solution)
-Use this for introductory paragraphs or "About" sections.
-* **Problem:** State the specific pain point. *(e.g., "Chronic back pain ruining your workday?")*
-* **Agitation:** Make the pain feel real. *(e.g., "You've tried stretching, pills, and ergonomic chairs, but that sharp knot between your shoulder blades won't let up.")*
-* **Solution:** Introduce the product. *(e.g., "Our targeted deep-tissue therapy dissolves chronic tension in just one session.")*
+1. **Hero** — the big promise. What it is, who it's for, and the primary CTA.
+2. **Social Proof** — "trusted by" logos or authority badges, immediately below the fold.
+3. **Problem/Solution (PAS)** — name the pain, then introduce the service as the resolution.
+4. **Features/Benefits** — Rule of 3 or Rule of 6. Focus on *outcomes*, not features.
+5. **Process** — 3–4 numbered steps. Reduces perceived risk by making the experience concrete.
+6. **Testimonials** — 2–3 highly specific quotes with name, title, and photo.
+7. **Objection Handling / FAQ** — answer the 4–6 reasons someone would say no.
+8. **Final CTA** — restate the offer with a lead capture form.
+9. **Footer** — copyright, links, social, contact.
 
-### 2. AIDA Framework (Attention, Interest, Desire, Action)
-Use this for the overall flow of the page.
-* **Attention:** Bold Hero Headline. (Under 8 words).
+**Vary the visual treatment across these.** If sections 4, 5, and 6 are all three-card grids,
+the page reads as a template regardless of how good the styling is. See
+`08-anti-patterns.md` §2.
+
+---
+
+## 2. Copywriting Formulas
+
+### PAS (Problem, Agitation, Solution)
+For introductory paragraphs and "About" sections.
+* **Problem:** State the specific pain. *"Chronic back pain ruining your workday?"*
+* **Agitation:** Make it real. *"You've tried stretching, pills, and ergonomic chairs, but that
+  sharp knot between your shoulder blades won't let up."*
+* **Solution:** Introduce the offer. *"Our targeted deep-tissue therapy dissolves chronic
+  tension in a single session."*
+
+### AIDA (Attention, Interest, Desire, Action)
+For overall page flow.
+* **Attention:** Bold hero headline, under 8 words.
 * **Interest:** Subheadline explaining the mechanism.
-* **Desire:** Testimonials and beautiful imagery.
+* **Desire:** Testimonials and imagery.
 * **Action:** High-contrast buttons.
 
-## Microcopy Rules (Buttons)
-* Never use generic words like "Submit", "Click Here", or "Learn More".
-* Use value-driven action words: "Book Your Session", "Start Free Trial", "Get My Custom Plan", "Unlock Access".
+### Before / After / Bridge
+For hero subheads and feature copy. Where they are now → where they could be → how you get
+them there. Compresses well into two sentences.
+
+---
+
+## 3. Headline Construction
+
+The hero H1 is the highest-leverage text on the page.
+
+- **Under 8 words.** 20–36 characters reads best at display size (`max-w-[16ch]`).
+- Make a **specific promise**, not a category description. "Sleep through the night by Friday"
+  beats "Premium Sound Therapy Services."
+- **Outcome over mechanism.** The subhead explains *how*; the headline states *what changes*.
+- Avoid: "Welcome to…", "We are a…", "Your partner in…", "Elevate your…", "Unlock the power of…"
+- One word of the headline may be set in the display face's italic for emphasis — far more
+  sophisticated than a color change or gradient.
+
+**Subhead:** one or two sentences, ≤ 28 words, naming the mechanism and the audience.
+
+---
+
+## 4. Microcopy Rules (Buttons)
+
+* Never use "Submit," "Click Here," "Learn More," or a bare "Get Started."
+* Use **value-driven, first-person or imperative** action words with an object:
+  "Book Your Session," "Start My Free Trial," "Get My Custom Plan," "Reserve a Spot,"
+  "See Available Times," "Claim Your Consultation."
+* **Support the button with risk-reducing microcopy** directly beneath it, in small muted text:
+  *"No card required · 2 minutes · Cancel anytime."* This single line reliably outperforms any
+  button styling change.
+* Secondary CTAs should be lower-commitment, not a second primary: "See how it works,"
+  "View pricing."
+
+---
+
+## 5. Testimonials That Read as Real
+
+- **Specific and quantified.** "I slept through the night for the first time in two years"
+  beats "Great service, highly recommend!"
+- Always include **name, title/context, and photo**. "John D." with no attribution reads as
+  fabricated.
+- **Vary the length.** Three quotes of identical length is a tell. One long, two short.
+- Lead with the objection the customer had before converting — that's what persuades the next
+  reader.
+
+## 6. Social Proof & Stats
+
+- Prefer **oddly specific numbers**: "1,847 sessions delivered" is more credible than "1000+."
+- Avoid the universal trio of 100% / 24/7 / 10+ Years on every site.
+- If real numbers aren't available, use qualitative proof (named partners, credentials,
+  certifications) rather than inventing implausible ones.
+
+## 7. Forms
+
+- **Ask for the minimum.** Every additional field measurably reduces completion. Name + email
+  is usually enough; phone only if the business actually calls.
+- Labels above inputs, always visible. Placeholder-only labels fail accessibility and usability.
+- Inline validation on blur, not on submit.
+- The submit button states the outcome: "Send My Request," not "Submit."
+- Confirm success in place — never leave the user wondering whether it worked.
+
+---
+
+## 8. Voice Calibration by Industry
+
+| Industry | Voice | Avoid |
+|---|---|---|
+| Wellness / Spa | Calm, sensory, second person | Hype, urgency, exclamation marks |
+| Legal / Financial | Precise, measured, credentialed | Slang, emoji, over-promising |
+| Tech / SaaS | Direct, benefit-led, concrete | Buzzword stacking, "revolutionary" |
+| Trades / Home Services | Plain, confident, practical | Corporate abstraction |
+| Education / Childcare | Warm, encouraging, clear | Condescension, jargon |
+| Luxury / Jewelry | Spare, restrained, understated | Discount language, urgency |
+| Fitness | Energetic, imperative, motivating | Shame-based framing |
+| Healthcare | Reassuring, clear, non-alarming | Diagnostic claims, fear appeals |
+
+**Universal:** write in second person ("you"), keep sentences under ~20 words, and prefer
+concrete nouns to abstract ones. Never make medical, legal, or financial claims that a real
+business would need to substantiate.
