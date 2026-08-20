@@ -159,9 +159,16 @@ The correct recipe has no artificial height at all:
 The hero never needs to be `position: sticky` at all — it's simply pinned to the viewport
 (`fixed inset-0`), and the content that follows starts at exactly `100vh` down and then behaves
 like completely normal document flow. The "shrinking headline on scroll" effect, if wanted,
-is layered separately: track `useScrollY` (§`07-react-tailwind-snippets.md`) and swap size/
+is layered separately: track `useScrollY` (`07-react-tailwind-snippets.md` §2) and swap size/
 position classes on the headline itself, inside the fixed hero — that's a style change driven
 by scroll position, not a layout technique, and the two should never be conflated.
+
+The content itself sits in a **floating card** over the photograph, not directly on it, and
+that card's position and text alignment are a separate mobile/desktop decision from the scroll
+mechanic above — mobile anchors the card in the upper third and centers its text; desktop
+centers the card vertically and left-aligns it. See `ParallaxHero` in
+`07-react-tailwind-snippets.md` §6 for the full implementation, and
+`06-ui-ux-accessibility.md` §8 for why the two breakpoints diverge here specifically.
 
 ## 10. Seamless Marquee — Why the Width Must Be Content-Sized
 

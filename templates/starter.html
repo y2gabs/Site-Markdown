@@ -199,6 +199,21 @@ const Arrow = () => (
   </svg>
 );
 
+/* Mobile counterpart to a photo/icon grid — see 06-ui-ux-accessibility.md §8
+   and 07-react-tailwind-snippets.md §22. */
+const CompactTile = ({ media, title, meta, action, onClick }) => (
+  <div onClick={onClick}
+       className={'flex items-center gap-3 rounded-2xl bg-ground p-4 shadow-soft' +
+                  (onClick ? ' cursor-pointer transition-shadow duration-300 hover:shadow-lift' : '')}>
+    {media}
+    <div className="min-w-0 flex-1">
+      <h3 className="truncate font-display text-base text-ink">{title}</h3>
+      {meta && <p className="mt-0.5 truncate text-sm text-muted">{meta}</p>}
+    </div>
+    {action}
+  </div>
+);
+
 /* ══ Navigation ════════════════════════════════════════════════════════ */
 const LINKS = [
   { href: '#approach', label: 'Approach' },
@@ -266,21 +281,29 @@ const Hero = () => {
   const offset = wide && !reduced ? scrollY * 0.28 : 0;
 
   return (
-    <section className="relative isolate flex min-h-[92vh] items-end overflow-hidden">
+    <section className="relative isolate flex h-screen min-h-[640px] w-full overflow-hidden">
       <img src={IMG.hero} alt=""
            className="absolute inset-0 -z-20 h-[125%] w-full object-cover"
            style={{ transform: 'translate3d(0,' + offset + 'px,0)', willChange: 'transform' }} />
-      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/85 via-ink/45 to-ink/55" />
-      <div className="mx-auto w-full max-w-6xl px-6 pb-24 pt-40">
-        <div className="intro max-w-headline">
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/70 via-ink/40 to-ink/20" />
+
+      {/* Mobile anchors the card in the upper third and centers its text; desktop centers
+          the card vertically, lifts it slightly, and left-aligns. See 06-ui-ux-accessibility.md
+          §8 for why these diverge. (This hero scrolls away normally — for a hero that stays
+          pinned while content slides over it instead, see 04-motion.md §9.) */}
+      <div className="relative mx-auto flex h-full w-full max-w-6xl items-start
+                      justify-center px-6 pt-[28vh] text-center md:items-center
+                      md:justify-start md:-translate-y-8 md:pt-0 md:text-left">
+        <div className="intro w-full rounded-3xl border border-white/15 bg-ink/75 p-6
+                        shadow-lift backdrop-blur-xl sm:p-8 md:w-[55%] md:p-12">
           <h1 className="font-display text-display-xl text-balance text-white">
             Quiet the noise <em className="italic">you've stopped noticing</em>
           </h1>
-          <p className="mt-8 max-w-measure text-body-lg text-pretty text-white/80">
+          <p className="mx-auto mt-8 max-w-measure text-body-lg text-pretty text-white/80 md:mx-0">
             Sound baths at Infinessence use tuned bowls and gong resonance to slow the nervous
             system into the same state as deep sleep — in 60 minutes, lying still, doing nothing.
           </p>
-          <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+          <div className="mt-10 flex flex-row justify-center gap-3 md:justify-start">
             <Button href="#book" className="group">Reserve Your First Session <Arrow /></Button>
             <Button href="#approach" variant="onDark">See how a session works</Button>
           </div>
@@ -387,7 +410,8 @@ const Sessions = () => (
           <h2 className="mt-6 font-display text-display-md text-balance">Three ways in</h2>
         </Reveal>
       </div>
-      <div className="mt-16 grid gap-8 md:grid-cols-3">
+      {/* Desktop: full cards in a grid. */}
+      <div className="mt-16 hidden gap-8 md:grid md:grid-cols-3">
         {SESSIONS.map((s, i) => (
           <Reveal key={s.title} delay={Math.min(i, 5) * 90}>
             <a href="#book" className="group block h-full">
@@ -407,6 +431,23 @@ const Sessions = () => (
           </Reveal>
         ))}
       </div>
+
+      {/* Mobile: a single column of compact tiles — thumbnail left, name and price right. */}
+      <ul className="mt-16 space-y-3 md:hidden">
+        {SESSIONS.map((s, i) => (
+          <li key={s.title}>
+            <Reveal delay={Math.min(i, 5) * 60}>
+              <a href="#book">
+                <CompactTile
+                  media={<img src={s.img} alt="" className="h-12 w-12 shrink-0 rounded-xl object-cover" />}
+                  title={s.title}
+                  meta={s.meta}
+                />
+              </a>
+            </Reveal>
+          </li>
+        ))}
+      </ul>
     </div>
   </section>
 );

@@ -219,10 +219,27 @@ const Nav = ({ links }) => {
 
 ## 6. Parallax Hero
 
-Disabled below 768px and under reduced-motion. `translate3d` promotes to its own layer.
+Disabled below 768px and under reduced-motion. `translate3d` promotes to its own layer. This
+hero scrolls away normally (its background image just parallaxes internally as it does) — for a
+hero that stays pinned to the viewport while page content slides up and over it instead, use the
+Fixed + Slide-Over technique in `04-motion.md` §9, which composes with the same floating-card
+content below.
+
+Content lives in a **floating card**, not directly on the photograph — this is what lets the
+mobile and desktop treatments diverge without the copy ever touching the busy image behind it.
+
+**Mobile and desktop deliberately position and align the card differently** — this is a
+dual-layout section per `06-ui-ux-accessibility.md` §8, done with responsive variants inside
+one card rather than two separate DOM trees, since only alignment and vertical anchor change:
+
+| | Mobile | Desktop |
+|---|---|---|
+| Card width | `w-full` | `w-[55%]` |
+| Vertical anchor | Upper third: `items-start pt-[28vh]` | Centered, slight lift: `items-center -translate-y-8` |
+| Text/button alignment | Centered: `text-center`, buttons `justify-center` | Left: `text-left`, buttons `justify-start` |
 
 ```jsx
-const ParallaxHero = ({ src, alt, children }) => {
+const ParallaxHero = ({ src, alt, eyebrow, children }) => {
   const scrollY = useScrollY();
   const reduced = usePrefersReducedMotion();
   const [enabled, setEnabled] = useState(false);
@@ -236,20 +253,39 @@ const ParallaxHero = ({ src, alt, children }) => {
   const offset = enabled && !reduced ? scrollY * 0.28 : 0;
 
   return (
-    <section className="relative isolate flex min-h-[92vh] items-center overflow-hidden">
+    <section className="relative isolate flex h-screen min-h-[640px] w-full overflow-hidden">
       <img
         src={src} alt={alt}
         className="absolute inset-0 -z-10 h-[125%] w-full object-cover"
         style={{ transform: `translate3d(0, ${offset}px, 0)`, willChange: 'transform' }}
       />
       {/* Required scrim — never rely on the photo for contrast. */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b
-                      from-ink/70 via-ink/50 to-ink/75" />
-      <div className="mx-auto w-full max-w-6xl px-6">{children}</div>
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/70 via-ink/40 to-ink/20" />
+
+      <div className="relative mx-auto flex h-full w-full max-w-6xl items-start justify-center
+                      px-4 pt-[28vh] text-center sm:px-6 md:items-center md:justify-start
+                      md:-translate-y-8 md:pt-0 md:text-left lg:px-8">
+        <div className="w-full rounded-3xl border border-white/15 bg-ink/75 p-6 shadow-lift
+                        backdrop-blur-xl sm:p-8 md:w-[55%] md:p-12">
+          {eyebrow && (
+            <p className="mb-4 inline-flex items-center gap-2 rounded-full border
+                          border-accent/30 bg-accent/20 px-3.5 py-1.5 text-overline uppercase
+                          text-white">
+              {eyebrow}
+            </p>
+          )}
+          {children}
+        </div>
+      </div>
     </section>
   );
 };
 ```
+
+Buttons inside `children` should use `flex flex-row gap-3` **on both breakpoints** — sized to
+fit without wrapping — rather than stacking on mobile (`flex-col sm:flex-row`). A two-button row
+reads as more confident and matches the rest of the card's now-centered composition; the row
+just gets `justify-center` on mobile and `justify-start` on desktop via the parent's alignment.
 
 ## 7. Count-Up Stat
 
@@ -837,7 +873,62 @@ Nominatim's usage policy caps requests at roughly one per second and asks for an
 `User-Agent` — fine for a single page load, but don't fire it in a loop (e.g., once per item in
 a multi-location list) without a delay between calls.
 
-## 22. Mount
+## 22. Compact Tile
+
+The mobile counterpart to a photo/icon grid (Services, Team) per `06-ui-ux-accessibility.md`
+§8 — a single-column list of dense rows instead of a multi-column grid of cards. Media sits on
+the left, text on the right, everything vertically centered in one line or two.
+
+```jsx
+const CompactTile = ({ media, title, meta, action, onClick, gap = 'gap-4' }) => (
+  <div onClick={onClick}
+       className={`flex items-center ${gap} rounded-2xl bg-surface p-4 shadow-soft
+                  ${onClick ? 'cursor-pointer transition-shadow duration-300 hover:shadow-lift' : ''}`}>
+    {media}
+    <div className="min-w-0 flex-1">
+      <h3 className="truncate font-display text-base text-ink">{title}</h3>
+      {meta && <p className="mt-0.5 truncate text-sm text-muted">{meta}</p>}
+    </div>
+    {action}
+  </div>
+);
+```
+
+Two usages, deliberately sized differently — an icon tile is denser than a photo tile, which
+needs more breathing room to read as a person rather than a thumbnail:
+
+```jsx
+// Services — small icon media, a compact "Book" button as the action, tighter list spacing.
+<ul className="space-y-2 md:hidden">
+  {services.map((s) => (
+    <li key={s.id}>
+      <CompactTile
+        gap="gap-3"
+        media={<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-accent/10 text-accent">{s.icon}</div>}
+        title={s.title}
+        meta={`${s.duration} · ${s.price}`}
+        action={<Button href="#book" onClick={() => onSelectService(s.id)} className="!min-h-0 !px-4 !py-2 text-xs">Book</Button>}
+      />
+    </li>
+  ))}
+</ul>
+
+// Team — larger photo media, no separate action button (the whole tile opens the profile modal).
+<ul className="space-y-3 md:hidden">
+  {team.map((member) => (
+    <li key={member.id}>
+      <CompactTile
+        onClick={() => onSelectMember(member)}
+        media={<img src={member.photo} alt={member.name} className="h-16 w-16 shrink-0 rounded-xl object-cover" />}
+        title={member.name}
+        meta={member.role}
+      />
+    </li>
+  ))}
+</ul>
+```
+
+## 23. Mount
 
 React 18 root API. Mounting the wrong way (`ReactDOM.render`) is the most common silent
 failure in this environment.

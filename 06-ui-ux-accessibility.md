@@ -137,18 +137,25 @@ than trying to force one layout to reflow into both:
 | Section | Desktop | Mobile |
 |---|---|---|
 | Navigation | Full inline link row | Collapsed hamburger menu |
-| Hero content panel | Vertically centered, slight upward offset | Anchored in the upper third (`items-start pt-[28vh]`), not centered |
-| About | Two columns, image alongside text | Single column, **image hidden entirely** (`hidden md:block` on the image) — a stacked image-then-text block reads as worse than no image |
+| Hero content panel | Card at `w-[55%]`, vertically centered with a slight upward lift (`-translate-y-8`), text and buttons **left-aligned** | Card widens to `w-full`, anchored in the upper third (`items-start pt-[28vh]`), text and buttons **centered** — see `ParallaxHero` in `07-react-tailwind-snippets.md` §6 |
+| About | Two columns, image alongside text, text left-aligned | Single column, text **centered**, **image hidden entirely** (`hidden md:block` on the image) — a stacked image-then-text block reads as worse than no image |
 | Logo wall / "Trusted by" | Static row | Continuous marquee (see `04-motion.md` §10) |
-| Feature/service grid | Multi-column card grid | Single-column compact tiles — icon/image left, text right, tighter spacing |
-| Team grid | Centered photo cards | Compact tiles like the above, but with **more** breathing room between photo and text than a service tile gets |
+| Feature/service grid | Multi-column card grid | Single-column `CompactTile` list — small icon media (`gap-3`), a compact action button. See `07-react-tailwind-snippets.md` §22 |
+| Team grid | Centered photo cards | `CompactTile` list like the above, but with a **larger** photo and **more** gap (`gap-4`) than a service tile gets — the whole tile is the click target, opening the profile modal |
 | Testimonials / news cards | Multi-column grid | One-at-a-time auto-advancing slider (see `MobileSlider` in `07-react-tailwind-snippets.md` §19) |
-| Contact details | Icon + label + value, one per row | A row of icon-only circular buttons (`grid-cols-3`) — same links, `aria-label` carries the text that's visually hidden |
+| Contact details | Rows of icon + label + value inside one card — icon `w-6 h-6` in a `p-3` box, value `text-2xl font-bold`, label `text-xs uppercase` | Either (a) a row of icon-only circular buttons (`grid-cols-3`) when contact is a compact footer-style block, or (b) separate stacked cards, one per link (`flex flex-col gap-4`, each `p-5`) when it's a full Contact section — icon drops to `w-5 h-5`, value to `text-lg`/`text-base`, label to `text-[10px] uppercase`. Either way, `aria-label` carries the full text even where it's visually reduced or hidden |
 
 The reasoning is the same in every row: some content (a full nav, a two-column layout, a value
 label) earns its place on a wide viewport but becomes clutter on a narrow one, and the fix is
 not a smaller version of the same thing — it's a different, deliberately designed alternative.
 Treat mobile as a second design pass in Phase 5 of `00-BUILD-PROTOCOL.md`, not a checkbox.
+
+**Default block copy to centered text on mobile**, even where desktop is left-aligned — every
+row above that has running copy (Hero, About) centers it on mobile, and every section heading
+in this framework's reference build (`templates/starter.html`) is centered at every breakpoint.
+Centered short blocks of text read as intentional on a narrow column in a way left-aligned text
+usually doesn't. The exception is a **data list** — contact rows, FAQ items, a `CompactTile`'s
+title/meta — where left alignment stays more scannable and should be kept even on mobile.
 
 ## 9. Modal Dialog Standard
 
