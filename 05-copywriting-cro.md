@@ -7,23 +7,52 @@ real copy has real lengths.
 
 ---
 
-## 1. Standard High-Converting Section Order
+## 1. Standard Section Order — Full Local-Business Build
 
-Unless explicitly told otherwise, structure landing pages in this flow:
+For the health & wellness build this framework is currently scoped to (`01-design-system.md`)
+— a local business site with booking, staff, a gallery, and ongoing content — this is **the**
+section order, not a suggestion to vary from. It has exactly 14 sections, numbered 0–13, and
+none of them are optional or interchangeable: **Section 9 (News), Section 11 (Location Map),
+and Section 12 (FAQ) are required**, not nice-to-haves, even though they land late in the list
+where they're easiest to quietly drop. See the Phase 7 completeness gate in
+`00-BUILD-PROTOCOL.md` for how to verify none of the 14 went missing.
 
-1. **Hero** — the big promise. What it is, who it's for, and the primary CTA.
-2. **Social Proof** — "trusted by" logos or authority badges, immediately below the fold.
-3. **Problem/Solution (PAS)** — name the pain, then introduce the service as the resolution.
-4. **Features/Benefits** — Rule of 3 or Rule of 6. Focus on *outcomes*, not features.
-5. **Process** — 3–4 numbered steps. Reduces perceived risk by making the experience concrete.
-6. **Testimonials** — 2–3 highly specific quotes with name, title, and photo.
-7. **Objection Handling / FAQ** — answer the 4–6 reasons someone would say no.
-8. **Final CTA** — restate the offer with a lead capture form.
-9. **Footer** — copyright, links, social, contact.
+| # | Section | Where the detail lives |
+|---|---|---|
+| 0 | Navigation | `07-react-tailwind-snippets.md` §5, `06-ui-ux-accessibility.md` §8 |
+| 1 | Hero | `04-motion.md` §9 (Fixed + Slide-Over), `07` §6 (`PinnedHero`) |
+| 2 | About | `06` §8's About row (mobile: text centered, image hidden entirely); social links via `07` §23 (`SocialLinks`) — icon-only, never a text list. Stat pair is 5-star reviews + years in operation, not generic percentages |
+| 3 | Social Proof | `04-motion.md` §10 (marquee seam math — `w-max`, not a fixed `%` width) |
+| 4 | Services | `06` §8's feature-grid row; mobile tiles via `07` §22 (`CompactTile`); tap opens §3 below's Service Detail |
+| 5 | Team | Same `CompactTile` pattern, more breathing room than Services gets (`06` §8); tap opens the Team Member popup, §3 below |
+| 6 | Gallery | `07` §18 (data-driven pagination, never a hardcoded count) + §17 (`Lightbox`, array-aware across pages) |
+| 7 | Testimonials | `07` §19 (`MobileSlider`/`useAutoAdvance` — state-index, no visible reverse-scroll) |
+| 8 | Chat Agent | `07` §25 (`ChatWidget` — mobile-safe centered overlay, demo-only, no real backend) |
+| 9 | News | Same mobile-slider technique as Testimonials; tap opens the News Reader popup, §3 below. **Required** |
+| 10 | Contact Info | `05` §9 (links, never a form) + `06` §8 (desktop rows vs. mobile icon-circle row); every day of the week listed, never collapsed |
+| 11 | Location Map | `07` §21 (Leaflet + Nominatim, CartoDB Positron greyscale, no API key). **Required.** Visual map only — §10's directions link already covers the address, so this section never restates it as text |
+| 12 | FAQ | Accordion per `07` §10; first 5 questions shown, a "More questions" button reveals the rest at once (no incremental paging). **Required** |
+| 13 | Footer | `07` §23 (`SocialLinks`, icon-only) |
 
-**Vary the visual treatment across these.** If sections 4, 5, and 6 are all three-card grids,
-the page reads as a template regardless of how good the styling is. See
-`08-anti-patterns.md` §2.
+**Four modals are equally required, not optional extras** — they're global overlays a build can
+still silently drop the same way a section can, so the Phase 7 gate checks these too:
+
+| Modal | Opens from | Built on |
+|---|---|---|
+| Booking Wizard | Nav CTA, Hero CTA, each Service's "Book" | `07` §20 (`BookingWizard`) — pre-seeds the service when opened from a card |
+| Image Lightbox | Any Gallery photo | `07` §17 — counter/navigation address the full array, not just the visible page |
+| Team Member popup | Any Team card (whole card is the trigger) | `07` §26 (`DetailModal`) |
+| News Reader popup | Any News card | `07` §26 (`DetailModal`) |
+
+**A lighter alternative** exists for a simpler single-page brief that doesn't need booking,
+staff, or a gallery — Hero → Social Proof → Problem/Solution (PAS) → Features/Benefits →
+Process → Testimonials → FAQ → Final CTA → Footer. Use the 14-section structure above by
+default for this framework's current scope; fall back to the shorter list only when explicitly
+asked for something simpler.
+
+**Vary the visual treatment across whichever list is in use.** If Services, Team, and
+Testimonials are all identical three-card grids, the page reads as a template regardless of how
+good the styling is. See `08-anti-patterns.md` §2.
 
 ---
 

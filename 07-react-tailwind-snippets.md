@@ -1297,7 +1297,45 @@ only** — `getReply` should return canned, keyword-matched responses (per
 `05-copywriting-cro.md`'s no-fabricated-backend principle), never a real API call from a static
 single-file build.
 
-## 26. Mount
+## 26. Detail Modal
+
+One content shape shared by every "tap for more" popup — a service, a team member, a news
+article. This is what makes a Team Member popup and a Service popup genuinely the **same**
+modal layout rather than just visually similar ones built twice: both render through this one
+component, on top of `Modal` (§16).
+
+```jsx
+const DetailModal = ({ open, onClose, image, eyebrow, title, body, meta, actionLabel, onAction }) => (
+  <Modal open={open} onClose={onClose} labelledBy="detail-modal-title" className="p-0">
+    {image && (
+      <img src={image} alt="" className="h-56 w-full rounded-t-2xl object-cover sm:h-64" />
+    )}
+    <div className="p-6 sm:p-8">
+      {eyebrow && <p className="text-overline uppercase text-accent">{eyebrow}</p>}
+      <h3 id="detail-modal-title" className="mt-3 font-display text-display-sm text-ink">{title}</h3>
+      {meta && <p className="mt-2 text-sm tabular-nums text-muted">{meta}</p>}
+      <p className="mt-4 text-muted text-pretty">{body}</p>
+      {actionLabel && (
+        <Button as="button" onClick={onAction} className="mt-8 w-full">{actionLabel}</Button>
+      )}
+    </div>
+  </Modal>
+);
+```
+
+Maps directly onto the three "tap for detail" popups a typical build needs:
+
+| Use | `eyebrow` | `title` | `meta` | `actionLabel` |
+|---|---|---|---|---|
+| Service detail | category/tag | service name | duration · price | "Book This Service" |
+| Team member | role/title | name | availability | "Book with {first name}" |
+| News article | date | headline | — | "Book Now" or omit |
+
+A team member or news popup needing a longer body than fits on the compact card (per
+`06-ui-ux-accessibility.md` §8's Services/Team row) is exactly what `body` is for — pass the
+fuller bio or article excerpt here, not the short card copy.
+
+## 27. Mount
 
 React 18 root API. Mounting the wrong way (`ReactDOM.render`) is the most common silent
 failure in this environment.
