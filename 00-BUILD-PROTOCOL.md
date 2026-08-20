@@ -111,8 +111,8 @@ pass, not a hope that it would have been noticed.
 
 For this framework's current default build (the 14-section local-business structure in
 `05-copywriting-cro.md` §1), check against that section's numbered table and four-modal table
-directly rather than reconstructing the list from memory — Sections 9 (News), 11 (Location
-Map), and 12 (FAQ) are the ones most likely to go missing precisely because they land late in
+directly rather than reconstructing the list from memory — Sections 9 (News), 11 (FAQ), and
+12 (Location Map) are the ones most likely to go missing precisely because they land late in
 the build and nothing else on the page visibly breaks when they're absent.
 
 While checking, also confirm no two sections are independently claiming the same content — a

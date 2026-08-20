@@ -12,8 +12,8 @@ real copy has real lengths.
 For the health & wellness build this framework is currently scoped to (`01-design-system.md`)
 — a local business site with booking, staff, a gallery, and ongoing content — this is **the**
 section order, not a suggestion to vary from. It has exactly 14 sections, numbered 0–13, and
-none of them are optional or interchangeable: **Section 9 (News), Section 11 (Location Map),
-and Section 12 (FAQ) are required**, not nice-to-haves, even though they land late in the list
+none of them are optional or interchangeable: **Section 9 (News), Section 11 (FAQ), and
+Section 12 (Location Map) are required**, not nice-to-haves, even though they land late in the list
 where they're easiest to quietly drop. See the Phase 7 completeness gate in
 `00-BUILD-PROTOCOL.md` for how to verify none of the 14 went missing.
 
@@ -30,8 +30,8 @@ where they're easiest to quietly drop. See the Phase 7 completeness gate in
 | 8 | Chat Agent | `07` §25 (`ChatWidget` — mobile-safe centered overlay, demo-only, no real backend) |
 | 9 | News | Same mobile-slider technique as Testimonials; tap opens the News Reader popup, §3 below. **Required** |
 | 10 | Contact Info | `05` §9 (links, never a form) + `06` §8 (desktop rows vs. mobile icon-circle row); every day of the week listed, never collapsed |
-| 11 | Location Map | `07` §21 (Leaflet + Nominatim, CartoDB Positron greyscale, no API key). **Required.** Visual map only — §10's directions link already covers the address, so this section never restates it as text |
-| 12 | FAQ | Accordion per `07` §10; first 5 questions shown, a "More questions" button reveals the rest at once (no incremental paging). **Required** |
+| 11 | FAQ | Accordion per `07` §10; first 5 questions shown, a "More questions" button reveals the rest at once (no incremental paging). **Required** |
+| 12 | Location Map | `07` §21 (Leaflet + Nominatim, CartoDB Positron greyscale, no API key). **Required.** Visual map only — §10's directions link already covers the address, so this section never restates it as text |
 | 13 | Footer | `07` §23 (`SocialLinks`, icon-only) |
 
 **Four modals are equally required, not optional extras** — they're global overlays a build can
