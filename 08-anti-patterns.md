@@ -103,6 +103,14 @@ in a visual review because the page still *looks* finished.
   of a page instead of crossing into the next one.
 - **Four modals on one page, each with different overlay opacity, radius, or close behavior.**
   Build every dialog on one shared shell; see `06-ui-ux-accessibility.md` §9.
+- **An outside-click handler on the wrong element in a modal.** `onMouseDown={(e) => e.target
+  === e.currentTarget && onClose()}` only works when the handler sits on the element the
+  visitor actually clicks. A common `Modal` shape has a separate `absolute inset-0` overlay div
+  as a *sibling* of the outer dialog div — that overlay fully covers the outer div's box, so
+  every click in the gutter hits the overlay, `e.target` is never the outer div, and the check
+  silently never passes. The click looks like it should close the modal and just doesn't.
+  Put the handler directly on the overlay div instead (`onMouseDown={onClose}`, no target check
+  needed) whenever the backdrop is a separate element from the one the handler is on.
 - **A line-mask heading reveal that clips its own descenders.** An `overflow-hidden` mask cuts
   the tails off `g`, `y`, `p`, `j` and the overhang of italics. Pad the mask and pull it back
   (`pb-[0.12em] -mb-[0.12em]`). This one hides from casual review because it only appears on

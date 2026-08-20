@@ -704,9 +704,13 @@ const Modal = ({ open, onClose, children, labelledBy, className = '' }) => {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[200] grid place-items-center p-4 sm:p-6" role="dialog"
-         aria-modal="true" aria-labelledby={labelledBy}
-         onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="absolute inset-0 bg-ink/70 backdrop-blur-sm" />
+         aria-modal="true" aria-labelledby={labelledBy}>
+      {/* The handler goes on the overlay itself, not the outer dialog div. The overlay is a
+          separate absolutely-positioned sibling that fully covers the outer div's box, so any
+          click in the "empty" gutter area hits the overlay first — e.target on the outer div's
+          own onMouseDown would never equal e.currentTarget, and outside-click would silently
+          never fire. See 08-anti-patterns.md for this exact failure mode. */}
+      <div className="absolute inset-0 bg-ink/70 backdrop-blur-sm" onMouseDown={onClose} />
       <div className={`relative w-full max-w-lg animate-[modal-in_.3s_cubic-bezier(0.16,1,0.3,1)]
                        rounded-2xl bg-surface p-6 shadow-lift sm:p-8 ${className}`}>
         <button onClick={onClose} aria-label="Close"

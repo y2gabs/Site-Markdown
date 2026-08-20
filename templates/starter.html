@@ -262,6 +262,72 @@ const CompactTile = ({ media, title, meta, action, onClick }) => (
   </div>
 );
 
+/* Shared dialog shell — every modal on the page (service detail, team member, etc.) is
+   built on this, not a bespoke overlay each time. See 07-react-tailwind-snippets.md §16
+   and 06-ui-ux-accessibility.md §9. */
+const useBodyScrollLock = (locked) => {
+  useEffect(() => {
+    if (!locked) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [locked]);
+};
+
+const Modal = ({ open, onClose, children, labelledBy, className = '' }) => {
+  useBodyScrollLock(open);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
+
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[200] grid place-items-center p-4 sm:p-6" role="dialog"
+         aria-modal="true" aria-labelledby={labelledBy}>
+      {/* Handler on the overlay itself, not the outer div — the overlay is a separate
+          absolutely-positioned sibling that fully covers the outer div's box, so a click in
+          the gutter always hits the overlay first. See 08-anti-patterns.md. */}
+      <div className="absolute inset-0 bg-ink/70 backdrop-blur-sm" onMouseDown={onClose} />
+      <div className={'relative w-full max-w-lg rounded-2xl bg-surface shadow-lift sm:p-8 ' +
+                      'max-h-[85vh] overflow-y-auto ' + className}>
+        <button onClick={onClose} aria-label="Close"
+                className="absolute right-4 top-4 z-10 grid h-11 w-11 place-items-center
+                           rounded-full bg-surface/90 text-muted backdrop-blur-sm
+                           transition-colors hover:bg-ground hover:text-ink
+                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+          </svg>
+        </button>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+/* One content shape shared by every "detail" popup — a service, a team member, a news
+   article. This is what makes them genuinely the same modal layout rather than just
+   visually similar: they all render through this one component. */
+const DetailModal = ({ open, onClose, image, eyebrow, title, body, meta, actionLabel, onAction }) => (
+  <Modal open={open} onClose={onClose} labelledBy="detail-modal-title" className="p-0">
+    {image && (
+      <img src={image} alt="" className="h-56 w-full rounded-t-2xl object-cover sm:h-64" />
+    )}
+    <div className="p-6 sm:p-8">
+      {eyebrow && <p className="text-overline uppercase text-accent">{eyebrow}</p>}
+      <h3 id="detail-modal-title" className="mt-3 font-display text-display-sm text-ink">{title}</h3>
+      {meta && <p className="mt-2 text-sm tabular-nums text-muted">{meta}</p>}
+      <p className="mt-4 text-muted text-pretty">{body}</p>
+      {actionLabel && (
+        <Button as="button" onClick={onAction} className="mt-8 w-full">{actionLabel}</Button>
+      )}
+    </div>
+  </Modal>
+);
+
 /* ══ Navigation ════════════════════════════════════════════════════════ */
 const LINKS = [
   { href: '#approach', label: 'Approach' },
@@ -478,7 +544,15 @@ const SESSIONS = [
     meta: '4 hrs · $150' },
 ];
 
-const Sessions = () => (
+const Sessions = () => {
+  const [selected, setSelected] = useState(null);
+
+  const bookNow = () => {
+    setSelected(null);
+    window.location.hash = 'book';
+  };
+
+  return (
   <section id="sessions" className="scroll-mt-24 bg-surface py-24 md:py-32">
     <div className="mx-auto max-w-6xl px-6">
       <div className="mx-auto max-w-headline text-center md:mx-0 md:text-left">
@@ -489,7 +563,8 @@ const Sessions = () => (
           lines={['Three ways in']}
         />
       </div>
-      {/* Desktop: full cards in a grid. */}
+      {/* Desktop: full cards in a grid — already show image, description, and price, so they
+          link straight to #book rather than opening a modal. */}
       <div className="mt-16 hidden gap-8 md:grid md:grid-cols-3">
         {SESSIONS.map((s, i) => (
           <Reveal key={s.title} delay={Math.min(i, 5) * 90}>
@@ -511,25 +586,39 @@ const Sessions = () => (
         ))}
       </div>
 
-      {/* Mobile: a single column of compact tiles — thumbnail left, name and price right. */}
+      {/* Mobile: compact tiles are too dense to show the description, so tapping one opens
+          the same DetailModal used elsewhere rather than jumping straight to #book. */}
       <ul className="mt-16 space-y-3 md:hidden">
         {SESSIONS.map((s, i) => (
           <li key={s.title}>
             <Reveal delay={Math.min(i, 5) * 60}>
-              <a href="#book">
+              <button onClick={() => setSelected(s)} className="w-full text-left">
                 <CompactTile
                   media={<img src={s.img} alt="" className="h-12 w-12 shrink-0 rounded-xl object-cover" />}
                   title={s.title}
                   meta={s.meta}
                 />
-              </a>
+              </button>
             </Reveal>
           </li>
         ))}
       </ul>
+
+      <DetailModal
+        open={!!selected}
+        onClose={() => setSelected(null)}
+        image={selected ? selected.img : null}
+        eyebrow={selected ? selected.tag : null}
+        title={selected ? selected.title : ''}
+        body={selected ? selected.body : ''}
+        meta={selected ? selected.meta : null}
+        actionLabel="Book This Session"
+        onAction={bookNow}
+      />
     </div>
   </section>
-);
+  );
+};
 
 /* ══ Dark stat band — punctuation, not the whole page ══════════════════ */
 const CountUp = ({ end, suffix = '' }) => {
