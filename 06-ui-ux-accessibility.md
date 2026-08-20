@@ -137,7 +137,7 @@ than trying to force one layout to reflow into both:
 | Section | Desktop | Mobile |
 |---|---|---|
 | Navigation | Full inline link row | Collapsed hamburger menu |
-| Hero content panel | Card at `w-[55%]`, vertically centered with a slight upward lift (`-translate-y-8`), text and buttons **left-aligned** | Card widens to `w-full`, anchored in the upper third (`items-start pt-[28vh]`), text and buttons **centered** — see `ParallaxHero` in `07-react-tailwind-snippets.md` §6 |
+| Hero content panel | Card at `w-[55%]`, vertically centered with a slight upward lift (`-translate-y-8`), text and buttons **left-aligned** | Card widens to `w-full`, anchored in the upper third (`items-start pt-[20vh]`), text and buttons **centered** — see `ParallaxHero` in `07-react-tailwind-snippets.md` §6 |
 | About | Two columns, image alongside text, text left-aligned | Single column, text **centered**, **image hidden entirely** (`hidden md:block` on the image) — a stacked image-then-text block reads as worse than no image. `text-center` only centers text and inline content — a stat block or social-icon row inside the same column is a `flex`/`grid` container and needs its own `justify-center` (and `mx-auto` if it has a fixed width), or it stays left-aligned inside an otherwise-centered column |
 | Logo wall / "Trusted by" | Static row | Continuous marquee (see `04-motion.md` §10) |
 | Feature/service grid | Multi-column card grid | Single-column `CompactTile` list — small icon media (`gap-3`), a compact action button. See `07-react-tailwind-snippets.md` §22 |

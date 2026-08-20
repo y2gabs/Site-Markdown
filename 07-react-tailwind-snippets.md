@@ -235,7 +235,7 @@ one card rather than two separate DOM trees, since only alignment and vertical a
 | | Mobile | Desktop |
 |---|---|---|
 | Card width | `w-full` | `w-[55%]` |
-| Vertical anchor | Upper third: `items-start pt-[28vh]` | Centered, slight lift: `items-center -translate-y-8` |
+| Vertical anchor | Upper third: `items-start pt-[20vh]` | Centered, slight lift: `items-center -translate-y-8` |
 | Text/button alignment | Centered: `text-center`, buttons `justify-center` | Left: `text-left`, buttons `justify-start` |
 
 ```jsx
@@ -263,7 +263,7 @@ const ParallaxHero = ({ src, alt, eyebrow, children }) => {
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/70 via-ink/40 to-ink/20" />
 
       <div className="relative mx-auto flex h-full w-full max-w-6xl items-start justify-center
-                      px-4 pt-[28vh] text-center sm:px-6 md:items-center md:justify-start
+                      px-4 pt-[20vh] text-center sm:px-6 md:items-center md:justify-start
                       md:-translate-y-8 md:pt-0 md:text-left lg:px-8">
         <div className="w-full rounded-3xl border border-white/15 bg-ink/75 p-6 shadow-lift
                         backdrop-blur-xl sm:p-8 md:w-[55%] md:p-12">
@@ -346,7 +346,7 @@ const PinnedHero = ({ src, alt, eyebrow, children }) => {
 
       <div
         className="relative mx-auto flex h-full w-full max-w-6xl items-start justify-center
-                  px-4 pt-[28vh] text-center sm:px-6 md:items-center md:justify-start
+                  px-4 pt-[20vh] text-center sm:px-6 md:items-center md:justify-start
                   md:-translate-y-8 md:pt-0 md:text-left lg:px-8"
         style={{ opacity, transform: `scale(${scale})`, transformOrigin: wide ? 'left center' : 'center' }}
       >
@@ -380,7 +380,7 @@ Two things easy to get wrong:
   hover. **Do not add `transition-all` "to smooth it out"** — that instinct is exactly backward
   here; the smoothing comes from `smoothstep`, not from CSS.
 - **Copy the mobile/desktop class list on the inner wrapper exactly** —
-  `items-start justify-center px-4 pt-[28vh] text-center` for mobile,
+  `items-start justify-center px-4 pt-[20vh] text-center` for mobile,
   `md:items-center md:justify-start md:-translate-y-8 md:pt-0 md:text-left` for desktop. This
   is the one part of the component most often simplified away when hand-written from memory,
   and dropping it silently reverts the hero to desktop-only alignment on every breakpoint —
