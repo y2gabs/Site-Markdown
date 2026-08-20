@@ -43,6 +43,11 @@ lives in that commit's history; restore via `git revert` rather than re-deriving
 - Healthcare / Dental & Orthodontics → 8, 11
 - Senior Living / Elder Care → 1, 6 *(generous size for readability)*
 - Sports, Fitness & Recreation → 11 *(heavy display weights, tight tracking)*
+- Massage Therapy & Bodywork → 8
+- Physiotherapy & Sports Rehab → 8, 11
+- Hair Salon & Makeup Studio → 2, 7
+- Brow, Lash & Skin Studio → 6
+- Nail Salon & Spa → 10
 
 Load only the weights actually used — typically Display 400/600 and Text 400/500/600.
 

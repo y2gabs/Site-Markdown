@@ -7,7 +7,7 @@ and Motion**. Layout and Signature reference the pattern libraries below by name
 first, then the industry table becomes a fast lookup.
 
 **Scoped to health & wellness for now.** The full framework covers 44 industries; this build
-is narrowed to the six below while work focuses on this vertical. The general sections
+is narrowed to the eleven below while work focuses on this vertical. The general sections
 (Layout Archetypes, Imagery & Art Direction, Iconography, and everything in `02`–`08`) are
 unchanged and still apply universally — only the industry-specific list is trimmed. Restoring
 the rest is a `git revert` of the commit that narrowed it, not a rewrite.
@@ -127,7 +127,10 @@ Color and type set the mood; photography proves it's real.
 ## Industry Directions
 
 ## 1. Beauty & Personal Care
-**Vibe:** Elevated, sensorial, effortlessly chic.
+**Vibe:** Elevated, sensorial, effortlessly chic. The general-purpose entry for a multi-service
+salon/spa brief that doesn't name one specialty clearly — reach for one of the more specific
+entries below (5–11) whenever the brief names a single service like massage, hair, brows, or
+nails.
 **Palette:** Bone/clay ground, burnished copper (H 30–50), very low chroma.
 **Type:** Pairing 1 or 8. **Imagery:** Soft-lit, low-contrast product and portrait photography, circular crops.
 **Layout:** Split Hero → Before/After Slider (results) → Masonry Gallery.
@@ -179,3 +182,48 @@ Color and type set the mood; photography proves it's real.
 **Radius:** `rounded-3xl`. **Icon:** Thin line.
 **Signature:** A class-schedule component styled as a first-class UI element, not a plain table; soft instructor portraits in circular frames.
 **Motion:** Slow, breath-paced — favor long, soft transitions over anything punchy.
+
+## 7. Massage Therapy & Bodywork
+**Vibe:** Grounded, tactile, quietly restorative — touch and breath, not retail.
+**Palette:** Muted eucalyptus-stone (H 145–165), warm-gray ground, very low chroma — cooler and quieter than Beauty & Personal Care's copper warmth.
+**Type:** Pairing 8. **Imagery:** Close, textural photography — hands, linen, warm low light; never the generic "person face-down on a table, camera overhead" stock shot.
+**Layout:** Split Hero → Menu/Price List (modality + duration + price) → Numbered Process Row (what a first session looks like).
+**Radius:** `rounded-3xl`, soft throughout. **Icon:** Thin line.
+**Signature:** A modality comparison (Swedish vs. deep tissue vs. hot stone) as a soft toggle rather than a wall of text; dotted-leader price list.
+**Motion:** Very slow, breath-paced — matches Yoga's pacing, never punchy.
+
+## 8. Physiotherapy & Sports Rehab
+**Vibe:** Clinically confident with a kinetic edge — recovery framed as progress, not injury.
+**Palette:** Muted slate-blue (H 215–235), cool light ground, low-to-moderate chroma — calmer than Sports & Fitness' orange, cooler than Healthcare's teal.
+**Type:** Pairing 8 or 11. **Imagery:** Real motion mid-exercise, resistance bands, real clinicians coaching — not sterile clinical stock.
+**Layout:** Split Hero → Numbered Process Row (assessment → plan → recovery) → Bento Grid (conditions treated).
+**Radius:** `rounded-2xl`. **Icon:** Line, clean.
+**Signature:** A visual recovery-timeline component; condition-specific landing blocks (sports injury, post-surgical, chronic pain).
+**Motion:** Measured and confident — quicker than Healthcare, well short of Sports & Fitness' punch.
+
+## 9. Hair Salon & Makeup Studio
+**Vibe:** Editorial, glossy-chic, expressive — a look book, not a price sheet.
+**Palette:** Soft blush-rose (H 350–15, wrapping through 0), warm-neutral ground, low chroma with room for one confident accent moment.
+**Type:** Pairing 2 or 7. **Imagery:** High-fashion-adjacent portraiture, motion in the hair, one consistent editorial grade across every shot.
+**Layout:** Editorial Masthead or Split Hero → Masonry Gallery (portfolio/look book) → Menu/Price List (cut, color, style services).
+**Radius:** `rounded-sm`/`rounded-none`, sharp and editorial. **Icon:** Thin line, minimal.
+**Signature:** A stylist-led portfolio wall; an Instagram-style masonry feed of real work.
+**Motion:** Confident, quick fades — a touch more energy than Beauty & Personal Care, never bouncy.
+
+## 10. Brow, Lash & Skin Studio
+**Vibe:** Precise, minimal, "your features, refined" — the quietest palette in this vertical.
+**Palette:** Near-neutral warm sand (H 30–45), extremely low chroma — a whisper of warmth rather than a visible hue, more restrained than Beauty & Personal Care's copper.
+**Type:** Pairing 6. **Imagery:** Extreme-clean close-up photography — brow/lash detail shots, soft studio light, nothing cluttering the frame.
+**Layout:** Split Hero → Before/After Slider (the highest-trust pattern for this category) → Menu/Price List.
+**Radius:** `rounded-2xl`. **Icon:** Thin line, sparing.
+**Signature:** Before/after as the entire proof strategy — lead with it, ahead of any testimonial wall.
+**Motion:** Slow, precise, minimal — almost still.
+
+## 11. Nail Salon & Spa
+**Vibe:** Playful-refined — color-forward without tipping into loud.
+**Palette:** Muted dusty coral (H 10–25), warm-bright ground. The one entry in this set allowed a slightly higher chroma ceiling on small fills (polish swatches, badges), since color is the product itself — ground and neutrals stay just as restrained as everywhere else.
+**Type:** Pairing 10. **Imagery:** Bright, clean close-ups of hands/feet; a genuine color-swatch wall, not stock nail-art photos.
+**Layout:** Split Hero → Menu/Price List (services + add-ons) → Masonry Gallery (design/nail-art gallery).
+**Radius:** `rounded-full` for swatches and badges, `rounded-2xl` elsewhere. **Icon:** Thin line.
+**Signature:** A live polish-color swatch grid as a first-class component, not a photo grid pretending to be one.
+**Motion:** Light, quick, cheerful — never bouncy, but the fastest pacing in this vertical alongside Sports & Fitness.

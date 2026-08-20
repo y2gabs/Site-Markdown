@@ -130,6 +130,11 @@ lives in that commit's history; restore via `git revert` rather than re-deriving
 | Senior Living / Elder Care | 30–50 or 150–170 | Warm neutral, soft confident accent |
 | Sports / Fitness | 15–35 or 90 | High-energy orange or volt green |
 | Yoga / Studio Fitness | 100–140 or 20–40 | Soft sage or clay, low chroma |
+| Massage Therapy / Bodywork | 145–165 | Muted eucalyptus-stone, cool and quiet |
+| Physiotherapy / Sports Rehab | 215–235 | Muted slate-blue, calm with a kinetic edge |
+| Hair Salon / Makeup Studio | 350–15 | Soft blush-rose, editorial warmth |
+| Brow, Lash & Skin Studio | 30–45 | Near-neutral warm sand, whisper-low chroma |
+| Nail Salon & Spa | 10–25 | Muted dusty coral — the one entry with room for a livelier accent swatch |
 
 ---
 
