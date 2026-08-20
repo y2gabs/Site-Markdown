@@ -180,3 +180,67 @@ when the track is sized to its own content (`w-max`), never to a fixed or fracti
 `w-[200%]`. A percentage width is relative to the *parent*, not to the duplicated content, so it
 drifts out of sync with the actual item widths and the loop visibly stutters or leaves a gap at
 the seam. If a marquee stutters, this is the first thing to check.
+
+---
+
+## 11. Section Headings — Line-Mask Reveal
+
+Section headings deserve a better entrance than the generic fade-and-rise of §3. The
+contemporary treatment is a **line mask**: each line of the heading sits inside its own
+`overflow-hidden` wrapper and slides up from behind that clipped edge, lines staggered. The
+text appears to be *uncovered* rather than faded in — the single most recognizable "this was
+designed" motion detail on the current web, and it costs one wrapper element per line.
+
+```
+┌─────────────────────┐  ← overflow-hidden mask (fixed, doesn't move)
+│  Quiet the noise    │  ← inner span: translateY(100% → 0)
+└─────────────────────┘
+```
+
+**Rules:**
+
+- **Travel exactly one line-height** (`100%` of the inner span), not a fixed pixel value — the
+  line must start fully hidden behind the mask regardless of font size.
+- **Slower than a body reveal:** 800–1000ms with `out-expo`. A heading is the thing the eye
+  lands on; let it settle.
+- **Stagger lines by 80–120ms.** Two or three lines is the sweet spot. Past four the last line
+  arrives after the reader has already started reading the first.
+- **Mask the lines, not the letters.** Per-character (or per-word) reveals read as a gimmick on
+  a marketing page and wreck screen-reader output and text selection. Line granularity keeps
+  the heading one intact text node per line.
+- **Pad for descenders.** An `overflow-hidden` box clips the tails of `g`, `y`, `p`, `j` and the
+  overhang of italics. Add a hair of bottom padding to the mask and pull it back with an equal
+  negative margin so the clip sits below the descender line without changing layout:
+  `pb-[0.12em] -mb-[0.12em]`. Omitting this is the number-one bug in line-mask reveals, and it
+  only shows up on headings that happen to contain a descender — so it survives casual review.
+- **Author the line breaks.** `03-typography.md` §3 already treats a headline's break points as
+  a compositional decision rather than an accident of container width; those same authored lines
+  become the animation units. Pass the heading as an array of lines, don't try to detect wraps.
+
+### Direction-Aware Entry
+
+Lines rise up when the reader is scrolling **down**, and settle down when the reader is
+approaching the heading from **above** (scrolling back up, or arriving below a hash-link jump
+and scrolling upward). Motion that always travels the same way regardless of approach fights
+the reader on the way back up; matching the direction makes the page feel like one continuous
+surface rather than a list of independently animating blocks.
+
+**This does not contradict "reveal once" in §3 — and must not be implemented as if it did.**
+The direction decides *which side a heading enters from on its single, permanent reveal*. It
+never re-hides content that has already been revealed. A heading that animates out when it
+leaves the viewport, or re-animates on every pass, is the amateur tell §3 names; a heading that
+enters from whichever side the reader came from is direction-aware. The difference is entirely
+in whether anything is ever hidden *again*.
+
+Implementation notes that matter:
+
+- Read the approach direction from the `IntersectionObserver` entry's own
+  `boundingClientRect`, which arrives free with the callback — never from a scroll listener
+  calling `getBoundingClientRect()` per element per frame, which thrashes layout.
+- Keep `transition: none` while the heading is still hidden, so re-positioning it from the
+  "below" start to the "above" start is instantaneous and invisible rather than an animated
+  slide of an already-hidden element.
+- Under `prefers-reduced-motion`, render the final state immediately — no travel, no stagger,
+  no transition (§7).
+
+See `useDirectionalReveal` and `<LineReveal>` in `07-react-tailwind-snippets.md` §24.

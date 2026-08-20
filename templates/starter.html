@@ -172,6 +172,62 @@ const Reveal = ({ children, delay = 0, y = 24, className = '' }) => {
   );
 };
 
+/* Heading entrance — see 04-motion.md §11 and 07-react-tailwind-snippets.md §24.
+   Direction comes from the observer entry's own rect (free, no layout thrash);
+   reveal still fires exactly once. */
+const useDirectionalReveal = ({ threshold = 0.25, rootMargin = '0px 0px -10% 0px' } = {}) => {
+  const ref = useRef(null);
+  const [state, setState] = useState({ shown: false, from: 'below' });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (!('IntersectionObserver' in window)) { setState({ shown: true, from: 'below' }); return; }
+
+    const obs = new IntersectionObserver((entries) => {
+      const entry = entries[entries.length - 1];
+      const from = entry.boundingClientRect.top < 0 ? 'above' : 'below';
+      if (entry.intersectionRatio >= threshold) {
+        setState({ shown: true, from });
+        obs.unobserve(el);
+      } else {
+        setState((s) => (s.shown || s.from === from ? s : { shown: false, from }));
+      }
+    }, { threshold: [0, threshold], rootMargin });
+
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold, rootMargin]);
+
+  return [ref, state.shown, state.from];
+};
+
+const LineReveal = ({ lines, as: Tag = 'h2', className = '', delay = 0, stagger = 100, duration = 900 }) => {
+  const [ref, shown, from] = useDirectionalReveal();
+  const reduced = usePrefersReducedMotion();
+  const visible = shown || reduced;
+  const hiddenY = from === 'above' ? '-100%' : '100%';
+
+  return (
+    <Tag ref={ref} className={className}>
+      {lines.map((line, i) => (
+        /* pb/-mb pair keeps the clip below the descender line without shifting layout. */
+        <span key={i} className="block overflow-hidden pb-[0.12em] -mb-[0.12em]">
+          <span className="block will-change-transform"
+            style={{
+              transform: visible ? 'translate3d(0,0,0)' : 'translate3d(0,' + hiddenY + ',0)',
+              transition: visible && !reduced
+                ? 'transform ' + duration + 'ms cubic-bezier(0.16, 1, 0.3, 1) ' + (delay + i * stagger) + 'ms'
+                : 'none',
+            }}>
+            {line}
+          </span>
+        </span>
+      ))}
+    </Tag>
+  );
+};
+
 const Overline = ({ children, className = '' }) => (
   <p className={'text-overline uppercase font-medium text-accent ' + className}>
     <span className="mr-3 inline-block h-px w-8 bg-accent align-middle" />
@@ -359,11 +415,11 @@ const Approach = () => (
 
       <div className="md:col-span-7 md:pt-8">
         <Reveal><Overline>01 — The Problem</Overline></Reveal>
-        <Reveal delay={80}>
-          <h2 className="mt-6 max-w-headline font-display text-display-md text-balance">
-            You can't think your way into rest
-          </h2>
-        </Reveal>
+        <LineReveal
+          className="mt-6 max-w-headline font-display text-display-md"
+          delay={120}
+          lines={["You can't think", 'your way into rest']}
+        />
         <Reveal delay={160}>
           <div className="mt-8 max-w-measure space-y-5 text-muted text-pretty">
             <p>
@@ -413,9 +469,11 @@ const Sessions = () => (
     <div className="mx-auto max-w-6xl px-6">
       <div className="max-w-headline">
         <Reveal><Overline>02 — Sessions</Overline></Reveal>
-        <Reveal delay={80}>
-          <h2 className="mt-6 font-display text-display-md text-balance">Three ways in</h2>
-        </Reveal>
+        <LineReveal
+          className="mt-6 font-display text-display-md"
+          delay={120}
+          lines={['Three ways in']}
+        />
       </div>
       {/* Desktop: full cards in a grid. */}
       <div className="mt-16 hidden gap-8 md:grid md:grid-cols-3">
@@ -554,9 +612,11 @@ const Questions = () => {
     <section id="questions" className="scroll-mt-24 bg-surface py-24 md:py-32">
       <div className="mx-auto max-w-3xl px-6">
         <Reveal><Overline>04 — Questions</Overline></Reveal>
-        <Reveal delay={80}>
-          <h2 className="mt-6 font-display text-display-md text-balance">Before your first session</h2>
-        </Reveal>
+        <LineReveal
+          className="mt-6 font-display text-display-md"
+          delay={120}
+          lines={['Before your', 'first session']}
+        />
         <Reveal delay={160}>
           <div className="mt-12 divide-y divide-line border-y border-line">
             {FAQ.map((item, i) => {
@@ -601,9 +661,11 @@ const Book = () => {
       <div className="relative mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-2 md:gap-20">
         <div>
           <Overline>05 — Reserve</Overline>
-          <h2 className="mt-6 max-w-headline font-display text-display-md text-balance">
-            The next group session is Thursday
-          </h2>
+          <LineReveal
+            className="mt-6 max-w-headline font-display text-display-md"
+            delay={120}
+            lines={['The next group', 'session is Thursday']}
+          />
           <p className="mt-6 max-w-measure text-ground/70 text-pretty">
             Leave your details and we'll send available times. No obligation, and no marketing
             list you have to escape from later.

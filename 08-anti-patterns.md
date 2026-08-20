@@ -103,6 +103,18 @@ in a visual review because the page still *looks* finished.
   of a page instead of crossing into the next one.
 - **Four modals on one page, each with different overlay opacity, radius, or close behavior.**
   Build every dialog on one shared shell; see `06-ui-ux-accessibility.md` §9.
+- **A line-mask heading reveal that clips its own descenders.** An `overflow-hidden` mask cuts
+  the tails off `g`, `y`, `p`, `j` and the overhang of italics. Pad the mask and pull it back
+  (`pb-[0.12em] -mb-[0.12em]`). This one hides from casual review because it only appears on
+  headings that happen to contain a descender — check a heading that does.
+- **Per-character or per-word text reveals.** Reads as a gimmick on a marketing page, and it
+  shatters the heading into dozens of nodes that wreck text selection and screen-reader output.
+  Mask whole lines instead; see `04-motion.md` §11.
+- **Direction-aware motion implemented as re-hiding.** Entering from the side the reader
+  approached from is good; animating content back *out* when it leaves the viewport, or
+  re-animating it on every pass, is the amateur tell from `04-motion.md` §3. Direction picks
+  which side an element enters from on its single permanent reveal — nothing is ever hidden
+  again.
 
 ---
 

@@ -1014,7 +1014,98 @@ const LinkedInIcon = (p) => (
 // ]} />
 ```
 
-## 24. Mount
+## 24. Directional Line Reveal (Section Headings)
+
+The line-mask heading entrance from `04-motion.md` §11. Each line slides up from behind its own
+clipped edge, staggered; the entry direction follows the reader's approach. Reveals **once** and
+unobserves — direction picks the side it enters from, it never re-hides anything.
+
+```javascript
+// Approach direction comes from the observer entry's own boundingClientRect, which arrives
+// free with the callback — no getBoundingClientRect() per frame, so no layout thrash.
+const useDirectionalReveal = ({ threshold = 0.25, rootMargin = '0px 0px -10% 0px' } = {}) => {
+  const ref = useRef(null);
+  const [state, setState] = useState({ shown: false, from: 'below' });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (!('IntersectionObserver' in window)) { setState({ shown: true, from: 'below' }); return; }
+
+    const obs = new IntersectionObserver((entries) => {
+      const entry = entries[entries.length - 1];
+      const from = entry.boundingClientRect.top < 0 ? 'above' : 'below';
+      if (entry.intersectionRatio >= threshold) {
+        setState({ shown: true, from });
+        obs.unobserve(el);                      // once. never again.
+      } else {
+        // Still hidden: keep the start position in sync with where it's being approached from.
+        setState((s) => (s.shown || s.from === from ? s : { shown: false, from }));
+      }
+    }, { threshold: [0, threshold], rootMargin });
+
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold, rootMargin]);
+
+  return [ref, state.shown, state.from];
+};
+```
+
+```jsx
+const LineReveal = ({
+  lines, as: Tag = 'h2', className = '', delay = 0, stagger = 100, duration = 900,
+}) => {
+  const [ref, shown, from] = useDirectionalReveal();
+  const reduced = usePrefersReducedMotion();
+  const visible = shown || reduced;
+  const hiddenY = from === 'above' ? '-100%' : '100%';
+
+  return (
+    <Tag ref={ref} className={className}>
+      {lines.map((line, i) => (
+        // Mask: pb/-mb pair keeps the clip below the descender line without shifting layout.
+        <span key={i} className="block overflow-hidden pb-[0.12em] -mb-[0.12em]">
+          <span
+            className="block will-change-transform"
+            style={{
+              transform: visible ? 'translate3d(0,0,0)' : `translate3d(0, ${hiddenY}, 0)`,
+              // No transition while hidden, so re-seating the start position is invisible.
+              transition: visible && !reduced
+                ? `transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay + i * stagger}ms`
+                : 'none',
+            }}
+          >
+            {line}
+          </span>
+        </span>
+      ))}
+    </Tag>
+  );
+};
+```
+
+Each entry in `lines` may be a string or JSX, so the display-italic emphasis word from
+`03-typography.md` §5 still works:
+
+```jsx
+<Overline>02 — Sessions</Overline>
+<LineReveal
+  className="mt-6 font-display text-display-md"
+  delay={120}
+  lines={['Three ways', <React.Fragment>into <em className="italic">stillness</em></React.Fragment>]}
+/>
+```
+
+Pair it with the `Overline` above the heading (a plain `<Reveal>` is right there — an overline
+is one short line and doesn't need masking), and give the heading a delay slightly longer than
+the overline's so the eye travels downward through the group.
+
+**Reach for `<Reveal>` (§4), not this, for body copy, cards, and grids.** The line mask is a
+heading treatment; applying it to paragraphs produces a wall of independently sliding lines that
+reads as noise. One or two masked headings per viewport is the ceiling.
+
+## 25. Mount
 
 React 18 root API. Mounting the wrong way (`ReactDOM.render`) is the most common silent
 failure in this environment.

@@ -87,7 +87,9 @@ A **1.25 ratio** for dense/corporate, **1.333** for editorial, **1.5** for drama
 - Body copy: **60–75 characters** → `max-w-[65ch]`. Never let paragraphs run the full width
   of a wide container.
 - Display headlines: **20–36 characters** → `max-w-[16ch]` for a hero H1. Forcing a headline
-  to break across 2–3 lines is a compositional choice, not an accident.
+  to break across 2–3 lines is a compositional choice, not an accident. Those authored breaks
+  double as the animation units for the line-mask heading reveal (`04-motion.md` §11), so a
+  heading composed into deliberate lines gets a better entrance for free.
 
 **Weight.**
 - Body at 400. UI labels at 500.
