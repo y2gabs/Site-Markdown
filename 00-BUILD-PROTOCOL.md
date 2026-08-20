@@ -179,3 +179,8 @@ increasing whitespace. If a change is needed and the direction is unclear, **sub
     copy/paste or AI-regeneration pipeline and silently become `?` the moment something in that
     pipeline re-saves the file under a different encoding. Inline SVG only — see
     `07-react-tailwind-snippets.md`'s Environment Gotchas.
+17. No prose, recap, or commentary outside the code fence when delivering a full-file build. A
+    canvas/export tool saves the response verbatim — anything after the closing ``` lands inside
+    the exported `index.html` too, and a browser keeps rendering text nodes that appear after
+    `</html>`, so a trailing summary shows up as raw garbled text at the bottom of the live page.
+    See `08-anti-patterns.md`.

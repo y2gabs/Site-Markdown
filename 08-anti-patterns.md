@@ -154,6 +154,13 @@ in a visual review because the page still *looks* finished.
   the nav toggle, easy to do if a build's icon set puts both glyphs near each other, breaks the
   one piece of mobile navigation every visitor already knows how to find. The toggle is a
   hamburger (three or two horizontal lines) that becomes an × when open; nothing else.
+- **Assistant commentary trailing past `</html>` in the delivered file** — a recap like "I have
+  generated the single-page application for..." appended after the closing code fence, which a
+  canvas/export tool then saves as part of the same `index.html`. Browsers keep parsing and
+  rendering text nodes that appear after `</html>`, so that recap doesn't just sit unused in the
+  file — it renders as a raw, garbled text block at the bottom of the live page. The response
+  delivering a full-file build must be the fenced code block and nothing else; any recap belongs
+  in a separate follow-up message, never appended to the same response as the file.
 - **A button or icon rendering as a bare `?`** — "Next: Staff ?" where an arrow belongs, a
   close button that's just a question mark. This is mojibake: a literal special-character glyph
   (`×`, `→`, `✓`, a curly quote) was typed directly into JSX text, and some step in the
