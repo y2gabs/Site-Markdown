@@ -71,14 +71,6 @@
   }
   body { background: oklch(var(--ground)); color: oklch(var(--ink)); }
 
-  /* Hero intro — H1 is visible at paint; supporting elements stagger in. */
-  @keyframes rise { from { opacity: 0; transform: translate3d(0, 18px, 0); } to { opacity: 1; transform: none; } }
-  .intro > * { animation: rise .9s cubic-bezier(.16,1,.3,1) both; }
-  .intro > *:nth-child(1) { animation-delay: 0s;   }
-  .intro > *:nth-child(2) { animation-delay: .08s; }
-  .intro > *:nth-child(3) { animation-delay: .18s; }
-  .intro > *:nth-child(4) { animation-delay: .28s; }
-
   @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
   @media (prefers-reduced-motion: reduce) {
@@ -323,6 +315,10 @@ const Nav = () => {
 };
 
 /* ══ Hero — parallax + mandatory scrim ═════════════════════════════════ */
+/* Pinned Hero — fixed to the viewport (not sticky, no dead scroll space), content eases
+   out on the way down and back in on the way up because it's a live function of scrollY,
+   never a one-time reveal. See 04-motion.md §9 and 07-react-tailwind-snippets.md §6
+   (PinnedHero). Requires <main> below to start at mt-[100vh] — see App. */
 const Hero = () => {
   const scrollY = useScrollY();
   const reduced = usePrefersReducedMotion();
@@ -334,24 +330,33 @@ const Hero = () => {
     mq.addEventListener('change', on);
     return () => mq.removeEventListener('change', on);
   }, []);
-  const offset = wide && !reduced ? scrollY * 0.28 : 0;
+  const parallax = wide && !reduced ? scrollY * 0.28 : 0;
+
+  /* Derived every render from the same scrollY already tracked above — no extra state,
+     no second scroll listener. Divisors are tuning knobs: 600 = fully faded by 600px of
+     scroll, 2000 = settles at 0.9 scale, never smaller. */
+  const opacity = reduced ? 1 : Math.max(0, 1 - scrollY / 600);
+  const scale = reduced ? 1 : Math.max(0.9, 1 - scrollY / 2000);
 
   return (
-    <section className="relative isolate flex h-screen min-h-[640px] w-full overflow-hidden">
+    <section className="fixed inset-0 z-0 h-screen w-full overflow-hidden pointer-events-none">
       <img src={IMG.hero} alt=""
            className="absolute inset-0 -z-20 h-[125%] w-full object-cover"
-           style={{ transform: 'translate3d(0,' + offset + 'px,0)', willChange: 'transform' }} />
+           style={{ transform: 'translate3d(0,' + parallax + 'px,0)', willChange: 'transform' }} />
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/70 via-ink/40 to-ink/20" />
 
       {/* Mobile anchors the card in the upper third and centers its text; desktop centers
           the card vertically, lifts it slightly, and left-aligns. See 06-ui-ux-accessibility.md
-          §8 for why these diverge. (This hero scrolls away normally — for a hero that stays
-          pinned while content slides over it instead, see 04-motion.md §9.) */}
+          §8 for why these diverge. The opacity/scale transform below is the scroll-linked
+          fade — deliberately inline, not a Tailwind transition class, since a CSS transition
+          would fight per-frame scroll updates. */}
       <div className="relative mx-auto flex h-full w-full max-w-6xl items-start
                       justify-center px-6 pt-[28vh] text-center md:items-center
-                      md:justify-start md:-translate-y-8 md:pt-0 md:text-left">
-        <div className="intro w-full rounded-3xl border border-white/15 bg-ink/75 p-6
-                        shadow-lift backdrop-blur-xl sm:p-8 md:w-[55%] md:p-12">
+                      md:justify-start md:-translate-y-8 md:pt-0 md:text-left"
+           style={{ opacity: opacity, transform: 'scale(' + scale + ')',
+                    transformOrigin: wide ? 'left center' : 'center' }}>
+        <div className="w-full rounded-3xl border border-white/15 bg-ink/75 p-6
+                        shadow-lift backdrop-blur-xl pointer-events-auto sm:p-8 md:w-[55%] md:p-12">
           <h1 className="font-display text-display-xl text-balance text-white">
             Quiet the noise <em className="italic">you've stopped noticing</em>
           </h1>
@@ -797,8 +802,10 @@ const App = () => (
       Skip to content
     </a>
     <Nav />
-    <main id="main">
-      <Hero />
+    <Hero />
+    {/* Starts exactly one viewport down and slides up over the fixed Hero as the page
+        scrolls — no spacer, no dead zone. See 04-motion.md §9. */}
+    <main id="main" className="relative z-20 mt-[100vh]">
       <Proof />
       <Approach />
       <Sessions />

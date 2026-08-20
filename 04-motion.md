@@ -123,7 +123,12 @@ than running at 0.01ms.
 
 ## 8. Motion Anti-Patterns
 
-- Elements that animate *out* when scrolled past.
+- Elements that animate *out* when scrolled past. **The one exception is the pinned hero's own
+  content in §9** — a single, singular "curtain" element easing out as the page scrolls into
+  view and back in as the visitor returns to the top is a deliberate, well-established pattern,
+  not the failure mode this bullet targets. The failure mode is *repeating* content — a card in
+  a grid, a section further down the page — re-animating every time it crosses the viewport
+  edge. A pinned hero never repeats; there is exactly one of it, and it never leaves the DOM.
 - Bounce/elastic easing on anything professional.
 - Animated gradient backgrounds behind text.
 - Auto-playing carousels that advance faster than ~6s (or at all, without pause controls).
@@ -166,9 +171,46 @@ by scroll position, not a layout technique, and the two should never be conflate
 The content itself sits in a **floating card** over the photograph, not directly on it, and
 that card's position and text alignment are a separate mobile/desktop decision from the scroll
 mechanic above — mobile anchors the card in the upper third and centers its text; desktop
-centers the card vertically and left-aligns it. See `ParallaxHero` in
-`07-react-tailwind-snippets.md` §6 for the full implementation, and
-`06-ui-ux-accessibility.md` §8 for why the two breakpoints diverge here specifically.
+centers the card vertically and left-aligns it. See `06-ui-ux-accessibility.md` §8 for why the
+two breakpoints diverge here specifically.
+
+### The Card Eases Out on the Way Down, Back In on the Way Up
+
+Because the hero is genuinely pinned (`position: fixed`, not scrolling away like an in-flow
+section), its content can do something an in-flow section can't: **fade and settle
+continuously with scroll position, in both directions**, since the card never actually leaves
+the viewport — it just recedes behind whatever is sliding over it. This is the "ease in up and
+ease in down" feel: scroll down and the card eases out (opacity down, a slight scale-down);
+scroll back toward the top and it eases back in, because it's a live function of `scrollY`, not
+a one-time triggered reveal.
+
+```jsx
+const opacity = Math.max(0, 1 - scrollY / 600);   // fully faded by 600px of scroll
+const scale   = Math.max(0.9, 1 - scrollY / 2000); // settles at 0.9, never smaller
+```
+
+Apply both to the **card wrapper as a whole** — one continuous transform on the outer
+positioning element, not a separate animation per line or per button. The badge, headline,
+subhead, and buttons ease out together as one composed unit; animating them individually here
+would compete with the line-mask heading treatment in §11, which is for in-flow section
+headings, not this pinned hero.
+
+This is a **derived value recomputed on render**, not new state and not a second scroll
+listener — it reads the same `scrollY` already tracked by `useScrollY`
+(`07-react-tailwind-snippets.md` §2), so it stays exactly as cheap as the parallax background
+already sitting on that value.
+
+Divide by zero risk aside, the two divisors above (`600`, `2000`) are tuning knobs, not magic
+constants — a taller hero or a slower-paced site can widen both; the shape (linear, clamped)
+is what matters more than the exact numbers. Under `prefers-reduced-motion`, skip the
+computation entirely and render `opacity: 1, scale: 1` unconditionally — a fade tied to scroll
+position is exactly the kind of motion that rule exists to suppress (§7).
+
+See `PinnedHero` in `07-react-tailwind-snippets.md` §6 for the full implementation — the fixed
+positioning, the floating card, the mobile/desktop divergence, and this scroll-linked fade,
+composed together. `ParallaxHero` (also §6) is the simpler alternative for a hero that's
+allowed to scroll away normally; the two are different techniques, not two names for the same
+thing, and a page uses one or the other.
 
 ## 10. Seamless Marquee — Why the Width Must Be Content-Sized
 

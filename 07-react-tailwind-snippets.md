@@ -302,6 +302,77 @@ To guarantee that row never wraps, give each button label a one-word mobile fall
 </Button>
 ```
 
+### Pinned Variant — `PinnedHero`
+
+The Fixed + Slide-Over technique from `04-motion.md` §9, complete: the whole hero is
+`position: fixed` rather than scrolling away in normal flow, and its floating card eases out
+continuously as the visitor scrolls down and back in as they scroll back up — because it's a
+live function of `scrollY`, never a one-time reveal. Requires the page's `<main>` (or whatever
+wraps everything after the hero) to start at `mt-[100vh]` so content slides up over it with no
+dead scroll gap; see the full recipe in §9.
+
+```jsx
+const PinnedHero = ({ src, alt, eyebrow, children }) => {
+  const scrollY = useScrollY();
+  const reduced = usePrefersReducedMotion();
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    setWide(mq.matches);
+    const on = (e) => setWide(e.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
+  const parallax = wide && !reduced ? scrollY * 0.28 : 0;
+
+  // Derived from scrollY on every render — no extra state, no second scroll listener.
+  // Tuning knobs, not magic numbers: widen the divisors for a taller hero or a slower fade.
+  const opacity = reduced ? 1 : Math.max(0, 1 - scrollY / 600);
+  const scale = reduced ? 1 : Math.max(0.9, 1 - scrollY / 2000);
+
+  return (
+    <section className="fixed inset-0 z-0 h-screen w-full overflow-hidden pointer-events-none">
+      <img
+        src={src} alt={alt}
+        className="absolute inset-0 -z-10 h-[125%] w-full object-cover"
+        style={{ transform: `translate3d(0, ${parallax}px, 0)`, willChange: 'transform' }}
+      />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/70 via-ink/40 to-ink/20" />
+
+      <div
+        className="relative mx-auto flex h-full w-full max-w-6xl items-start justify-center
+                  px-4 pt-[28vh] text-center sm:px-6 md:items-center md:justify-start
+                  md:-translate-y-8 md:pt-0 md:text-left lg:px-8"
+        style={{ opacity, transform: `scale(${scale})`, transformOrigin: wide ? 'left center' : 'center' }}
+      >
+        <div className="w-full rounded-3xl border border-white/15 bg-ink/75 p-6 shadow-lift
+                        backdrop-blur-xl pointer-events-auto sm:p-8 md:w-[55%] md:p-12">
+          {eyebrow && (
+            <p className="mb-4 inline-flex items-center gap-2 rounded-full border
+                          border-accent/30 bg-accent/20 px-3.5 py-1.5 text-overline uppercase
+                          text-white">
+              {eyebrow}
+            </p>
+          )}
+          {children}
+        </div>
+      </div>
+    </section>
+  );
+};
+```
+
+Two things easy to get wrong:
+
+- **`pointer-events-none` on the section, `pointer-events-auto` back on the card.** The pinned
+  hero sits in front of everything as a fixed layer; without the section-level `none`, it would
+  intercept clicks on content that's visually scrolled above it. The card re-enables events so
+  its own buttons stay clickable.
+- **The opacity/scale transform lives on the wrapper, not inline on `style` mixed with
+  Tailwind's `transition-*` classes.** This is a per-frame scroll-driven value — giving it a
+  CSS `transition` would fight the constant updates and read as laggy. Let the value itself be
+  the animation; reserve `transition-*` classes for state changes like hover.
+
 ## 7. Count-Up Stat
 
 ```jsx
