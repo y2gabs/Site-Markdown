@@ -538,7 +538,306 @@ const Timeline = ({ items }) => (
 for `React.createElement(as, …)`, or duplicate the component as `RevealLi` for a list context)
 so the timeline stays valid `<ol><li>` markup.
 
-## 16. Mount
+## 16. Modal Primitive
+
+Every dialog on a site — a booking flow, a team-member profile, an article reader, a
+newsletter prompt — should share **one** shell so they read as one system rather than four
+unrelated popups. Build every centered dialog on this, not a bespoke overlay each time.
+
+```javascript
+const useBodyScrollLock = (locked) => {
+  useEffect(() => {
+    if (!locked) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [locked]);
+};
+```
+
+```jsx
+const Modal = ({ open, onClose, children, labelledBy, className = '' }) => {
+  useBodyScrollLock(open);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
+
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[200] grid place-items-center p-4 sm:p-6" role="dialog"
+         aria-modal="true" aria-labelledby={labelledBy}
+         onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="absolute inset-0 bg-ink/70 backdrop-blur-sm" />
+      <div className={`relative w-full max-w-lg animate-[modal-in_.3s_cubic-bezier(0.16,1,0.3,1)]
+                       rounded-2xl bg-surface p-6 shadow-lift sm:p-8 ${className}`}>
+        <button onClick={onClose} aria-label="Close"
+                className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full
+                           text-muted transition-colors hover:bg-ground hover:text-ink
+                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+          </svg>
+        </button>
+        {children}
+      </div>
+    </div>
+  );
+};
+```
+
+```css
+@keyframes modal-in { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
+```
+
+Non-negotiable on every dialog built from this shell: closes on **Escape**, closes on **click
+outside** the panel (the `onMouseDown` guard above — clicking the panel itself never bubbles to
+the overlay), closes on the **×** button, and **locks body scroll** while open. A "Team member"
+modal, a "Read more" article modal, and a booking modal are all just different `children` passed
+into this same `<Modal>` — same overlay darkness, same radius, same close-button placement.
+
+## 17. Lightbox
+
+A full-bleed image viewer is a different shape than `Modal` (no card, no padding) but shares
+its close/Escape/scroll-lock discipline, plus arrow-key navigation.
+
+**The counter must track position in the full image array, not a paginated window of it.** If
+a gallery only renders 9 images at a time (see §18), the Lightbox still needs to navigate and
+count across the *entire* array — open image 9 and press "next" and it should advance to image
+10 on the next page, not dead-end.
+
+```jsx
+const Lightbox = ({ images, index, onClose, onNavigate }) => {
+  const open = index !== null;
+  useBodyScrollLock(open);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowRight') onNavigate((index + 1) % images.length);
+      if (e.key === 'ArrowLeft') onNavigate((index - 1 + images.length) % images.length);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, index, images.length, onClose, onNavigate]);
+
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[200] grid place-items-center bg-ink/90 p-4"
+         onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <button onClick={onClose} aria-label="Close"
+              className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full text-white/80 hover:text-white">
+        <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+        </svg>
+      </button>
+      <button onClick={() => onNavigate((index - 1 + images.length) % images.length)} aria-label="Previous image"
+              className="absolute left-2 grid h-12 w-12 place-items-center rounded-full text-white/80 hover:text-white sm:left-6">
+        <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      <img src={images[index].src} alt={images[index].alt}
+           className="max-h-[85vh] max-w-[90vw] rounded-sm object-contain shadow-lift" />
+      <button onClick={() => onNavigate((index + 1) % images.length)} aria-label="Next image"
+              className="absolute right-2 grid h-12 w-12 place-items-center rounded-full text-white/80 hover:text-white sm:right-6">
+        <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      <p className="absolute bottom-6 text-sm tabular-nums text-white/70">{index + 1} / {images.length}</p>
+    </div>
+  );
+};
+```
+
+## 18. Paginated Gallery — Data-Driven, Not Assumed
+
+Derive pagination controls from the array's actual length, never from how many images the demo
+happens to ship with. Seeding the gallery with exactly 9 placeholder images must not be the
+*reason* the arrows are hidden — the `images.length > PAGE_SIZE` check is what hides them, and
+it needs to keep working correctly the day a real client hands over 40 photos.
+
+```jsx
+const PAGE_SIZE = 9;
+
+const Gallery = ({ images }) => {
+  const [page, setPage] = useState(0);
+  const [lightboxIndex, setLightboxIndex] = useState(null);
+  const pageCount = Math.ceil(images.length / PAGE_SIZE);
+  const visible = images.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+
+  return (
+    <div>
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        {visible.map((img, i) => {
+          const globalIndex = page * PAGE_SIZE + i; // Lightbox always addresses the full array.
+          return (
+            <button key={img.src} onClick={() => setLightboxIndex(globalIndex)}
+                    className="group aspect-square overflow-hidden rounded-sm">
+              <img src={img.src} alt={img.alt}
+                   className="h-full w-full object-cover transition-transform duration-700
+                              ease-out-expo group-hover:scale-[1.04]" />
+            </button>
+          );
+        })}
+      </div>
+      {images.length > PAGE_SIZE && (
+        <div className="mt-6 flex justify-center gap-4">
+          <button onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0}
+                  aria-label="Previous page" className="disabled:opacity-30">‹</button>
+          <button onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))} disabled={page === pageCount - 1}
+                  aria-label="Next page" className="disabled:opacity-30">›</button>
+        </div>
+      )}
+      <Lightbox images={images} index={lightboxIndex} onClose={() => setLightboxIndex(null)} onNavigate={setLightboxIndex} />
+    </div>
+  );
+};
+```
+
+## 19. Mobile Auto-Advance Slider
+
+For content that's a grid on desktop but needs to be one-at-a-time on mobile (testimonials,
+news/announcements). Swaps which item is **shown**, rather than physically scrolling a track —
+that distinction is what avoids the visible "snap back to the start" reverse-scroll that a
+naive looping scroll-track produces. Pauses briefly after the visitor interacts.
+
+```javascript
+const useAutoAdvance = (length, { interval = 5000, pauseFor = 4000 } = {}) => {
+  const [index, setIndex] = useState(0);
+  const pausedUntil = useRef(0);
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (Date.now() < pausedUntil.current) return;
+      setIndex((i) => (i + 1) % length);
+    }, interval);
+    return () => clearInterval(id);
+  }, [length, interval]);
+  const pause = () => { pausedUntil.current = Date.now() + pauseFor; };
+  return [index, (i) => { setIndex(i); pause(); }, pause];
+};
+```
+
+```jsx
+const MobileSlider = ({ items, renderItem }) => {
+  const [index, goTo, pause] = useAutoAdvance(items.length);
+  return (
+    <div onTouchStart={pause}>
+      {renderItem(items[index], index)}
+      <div className="mt-4 flex justify-center gap-2">
+        {items.map((_, i) => (
+          <button key={i} onClick={() => goTo(i)} aria-label={`Go to slide ${i + 1}`}
+                  className={`h-1.5 rounded-full transition-all duration-300
+                             ${i === index ? 'w-6 bg-accent' : 'w-1.5 bg-line'}`} />
+        ))}
+      </div>
+    </div>
+  );
+};
+```
+
+## 20. Multi-Step Wizard (Booking / Quote Flows)
+
+A `Stepper` progress indicator plus a `Modal`-hosted flow. Show which step the visitor is on,
+mark completed steps, and give every step after the first a "← Back" control. Support landing
+on a later step with a value pre-filled — e.g. a "Book" link on a specific service card should
+open the wizard with that service already selected, not force the visitor to re-pick it.
+
+```jsx
+const Stepper = ({ steps, current }) => (
+  <ol className="mb-8 flex items-center gap-2">
+    {steps.map((label, i) => {
+      const done = i < current, active = i === current;
+      return (
+        <li key={label} className="flex flex-1 items-center gap-2">
+          <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-medium
+                            transition-colors duration-300
+                            ${done ? 'bg-accent text-accent-ink'
+                                   : active ? 'border-2 border-accent text-accent'
+                                            : 'border border-line text-muted'}`}>
+            {done ? '✓' : i + 1}
+          </span>
+          <span className={`hidden text-xs sm:block ${active ? 'text-ink' : 'text-muted'}`}>{label}</span>
+          {i < steps.length - 1 && <span className="h-px flex-1 bg-line" aria-hidden="true" />}
+        </li>
+      );
+    })}
+  </ol>
+);
+
+// Scaffold — fill each step's body in; the shell (stepper, back control, pre-seeding,
+// reset-on-reopen) is what's easy to get subtly wrong and worth copying exactly.
+const BookingWizard = ({ open, onClose, initialService = null }) => {
+  const steps = ['Service', 'Date', 'Time', 'Details', 'Confirm'];
+  const [step, setStep] = useState(initialService ? 1 : 0);
+  const [selection, setSelection] = useState({ service: initialService });
+
+  useEffect(() => {
+    if (open) { setStep(initialService ? 1 : 0); setSelection({ service: initialService }); }
+  }, [open, initialService]);
+
+  const next = () => setStep((s) => Math.min(steps.length - 1, s + 1));
+  const back = () => setStep((s) => Math.max(0, s - 1));
+
+  return (
+    <Modal open={open} onClose={onClose} labelledBy="booking-title" className="max-w-xl">
+      <h2 id="booking-title" className="font-display text-display-sm">Book Your Visit</h2>
+      <Stepper steps={steps} current={step} />
+      {step > 0 && (
+        <button onClick={back} className="mb-4 text-sm text-muted hover:text-ink">← Back</button>
+      )}
+      {/* Render the field(s) for `steps[step]` here, writing into `selection` via setSelection,
+          then a primary Button calling next() — or, on the final step, a static confirmation
+          with a fabricated reference number if this is a front-end-only demo. */}
+    </Modal>
+  );
+};
+```
+
+## 21. Location Map (Leaflet + Free Geocoding)
+
+A real interactive map needs no paid API: **CartoDB Positron** tiles for the greyscale style
+and **Nominatim** (OpenStreetMap's free geocoder) to turn a street address into coordinates on
+load. Requires Leaflet's CSS and JS loaded via CDN `<script>`/`<link>` in `<head>` — Leaflet is
+not React-aware, so it's driven imperatively inside a `useEffect`.
+
+```jsx
+const LocationMap = ({ address, businessName }) => {
+  const mapRef = useRef(null);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!window.L || mapRef.current) return; // guards against double-init in strict mode
+    const map = window.L.map(containerRef.current, { scrollWheelZoom: false }).setView([0, 0], 2);
+    window.L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap contributors © CARTO', maxZoom: 19,
+    }).addTo(map);
+    mapRef.current = map;
+
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(address)}`)
+      .then((r) => r.json())
+      .then(([result]) => {
+        if (!result) throw new Error('No geocoding result');
+        const { lat, lon } = result;
+        map.setView([lat, lon], 15);
+        window.L.marker([lat, lon]).addTo(map)
+          .bindPopup(`<strong>${businessName}</strong><br>${address}`).openPopup();
+      })
+      .catch(() => map.setView([39.5, -98.35], 4)); // graceful fallback, never a broken blank map
+  }, [address, businessName]);
+
+  return <div ref={containerRef} className="h-[400px] w-full rounded-sm" />;
+};
+```
+
+Nominatim's usage policy caps requests at roughly one per second and asks for an identifying
+`User-Agent` — fine for a single page load, but don't fire it in a loop (e.g., once per item in
+a multi-location list) without a delay between calls.
+
+## 22. Mount
 
 React 18 root API. Mounting the wrong way (`ReactDOM.render`) is the most common silent
 failure in this environment.

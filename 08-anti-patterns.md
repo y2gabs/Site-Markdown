@@ -74,6 +74,36 @@ for perceived quality than adding any new effect.
 - Clickable `<div>`s instead of `<button>`/`<a>`.
 - A sticky header that covers content when jumping to an anchor (fix with `scroll-mt-24`).
 
+## 7. Technical & Build Tells
+
+Bugs and omissions specific to how these pages get assembled — easy to introduce, easy to miss
+in a visual review because the page still *looks* finished.
+
+- **A scroll-triggered hero built with `height: 200vh` + `position: sticky`.** Produces 100vh
+  of dead scrolling where nothing visibly happens. Use the Fixed + Slide-Over technique instead
+  — see `04-motion.md` §9.
+- **A marquee track sized with a fixed percentage** (`w-[200%]`) instead of its actual content
+  width (`w-max`). The `-50%` loop only lands on the seam when the track is exactly twice one
+  copy's rendered width — a percentage width drifts, and the loop visibly stutters or gaps.
+  See `04-motion.md` §10.
+- **A contact form where direct links would convert better and need no backend.** See
+  `05-copywriting-cro.md` §9.
+- **A required section or modal silently missing from the shipped build.** On a page with many
+  sections, it's common for one (an FAQ, a map, a specific modal) to get dropped somewhere in
+  the process without anyone noticing, because the rest of the page still renders fine. Count
+  what Phase 1 committed to against what actually renders before calling it done.
+- **Two sections independently claiming the same content** — e.g., a "Visit Us" section *and* a
+  Location Map section that both restate the address, producing duplicated or conflicting
+  information. Each fact should have exactly one home on the page.
+- **Pagination or "show more" controls gated on a hardcoded count** (`items.length === 9`)
+  instead of derived from the actual data (`items.length > PAGE_SIZE`). Works by coincidence on
+  the demo data, breaks the day real content is dropped in.
+- **A gallery lightbox whose counter/navigation only knows about the currently visible page** of
+  a paginated grid, rather than the full underlying array — makes "next" dead-end at the edge
+  of a page instead of crossing into the next one.
+- **Four modals on one page, each with different overlay opacity, radius, or close behavior.**
+  Build every dialog on one shared shell; see `06-ui-ux-accessibility.md` §9.
+
 ---
 
 ## The Final Audit

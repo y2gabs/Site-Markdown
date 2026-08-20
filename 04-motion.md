@@ -130,3 +130,46 @@ than running at 0.01ms.
 - Anything triggered on `mousemove` without `requestAnimationFrame` throttling.
 - Entrance animations on above-the-fold hero copy that delay the headline — the H1 should be
   visible at paint. Animate the hero image or subhead instead, or use a ≤150ms delay.
+
+---
+
+## 9. Fixed + Slide-Over Hero (No Dead Scroll Space)
+
+The common approach to a hero that shrinks/anchors as the page scrolls is `position: sticky`
+inside a container inflated to `height: 200vh`. **Don't do this.** It produces 100vh of dead,
+content-free scrolling before the sticky element releases — the visitor scrolls and nothing
+visibly happens, which reads as broken.
+
+The correct recipe has no artificial height at all:
+
+```html
+<!-- Hero is fixed to the viewport, not sticky, and not interactive by default. -->
+<section class="fixed inset-0 z-0 h-screen w-full pointer-events-none">
+  <!-- background image, scrim, and Ken Burns / parallax effects. Re-enable
+       pointer-events-auto on any actual controls (a CTA button) inside it. -->
+</section>
+
+<!-- Everything else starts exactly one viewport down and slides up over the fixed
+     hero as the page scrolls — no spacer, no dead zone. -->
+<main class="relative z-20 mt-[100vh]">
+  …
+</main>
+```
+
+The hero never needs to be `position: sticky` at all — it's simply pinned to the viewport
+(`fixed inset-0`), and the content that follows starts at exactly `100vh` down and then behaves
+like completely normal document flow. The "shrinking headline on scroll" effect, if wanted,
+is layered separately: track `useScrollY` (§`07-react-tailwind-snippets.md`) and swap size/
+position classes on the headline itself, inside the fixed hero — that's a style change driven
+by scroll position, not a layout technique, and the two should never be conflated.
+
+## 10. Seamless Marquee — Why the Width Must Be Content-Sized
+
+The seamless-loop marquee (Proof band, logo walls, menu tickers — see `Marquee` in
+`07-react-tailwind-snippets.md` §8) works by duplicating the item list once and animating the
+combined track by exactly `-50%`. That only lands precisely on the seam between the two copies
+if the track's rendered width is **exactly** twice the width of one copy — which is only true
+when the track is sized to its own content (`w-max`), never to a fixed or fractional width like
+`w-[200%]`. A percentage width is relative to the *parent*, not to the duplicated content, so it
+drifts out of sync with the actual item widths and the loop visibly stutters or leaves a gap at
+the seam. If a marquee stutters, this is the first thing to check.

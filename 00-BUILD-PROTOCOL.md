@@ -100,14 +100,26 @@ disables below 768px, and every touch target clears 44px.
 Run the checklist in `06-ui-ux-accessibility.md` §7. Keyboard-only pass, contrast verification
 (including muted text and text-over-image), semantics, focus visibility, reduced motion.
 
-## Phase 7 — The Subtraction Pass
+## Phase 7 — Completeness Gate, Then the Subtraction Pass
 
-**Do not skip this.** Read `08-anti-patterns.md` end to end and audit the build against it,
-then answer the five final questions honestly.
+**Before auditing quality, verify completeness.** List every section and every modal/dialog
+this build committed to in Phase 1–2, then check the rendered output against that list one item
+at a time. On a page with many sections and several modals, it's easy for one to get dropped
+silently mid-build without anything looking obviously wrong — the rest of the page still
+renders fine. This is a distinct failure mode from a quality problem and needs its own explicit
+pass, not a hope that it would have been noticed.
 
-Then remove things. Almost every generated page is improved by deleting a decorative element,
-cutting a section that repeats another's function, reducing accent usage, and increasing
-whitespace. If a change is needed and the direction is unclear, **subtract**.
+While checking, also confirm no two sections are independently claiming the same content — a
+"Visit Us" block that restates an address already covered by the Contact section and a Location
+Map is the classic version of this, and it produces duplicated or conflicting information rather
+than reinforcement.
+
+**Then, and only then, read `08-anti-patterns.md` end to end** and audit the build against it,
+answering the five final questions honestly.
+
+Finally, remove things. Almost every generated page is improved by deleting a decorative
+element, cutting a section that repeats another's function, reducing accent usage, and
+increasing whitespace. If a change is needed and the direction is unclear, **subtract**.
 
 ---
 
@@ -140,3 +152,8 @@ whitespace. If a change is needed and the direction is unclear, **subtract**.
 8. No touch target under 44px.
 9. No animation that ignores `prefers-reduced-motion`.
 10. No more than one accent hue, two type families, or one radius language.
+11. No contact form as the default — `tel:`/`mailto:`/directions links first (see
+    `05-copywriting-cro.md` §9); reach for a form only where structured intake is genuinely
+    required.
+12. No section or modal quietly missing from the shipped build — run the Phase 7 completeness
+    gate before calling anything done.

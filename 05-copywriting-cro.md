@@ -105,6 +105,11 @@ The hero H1 is the highest-leverage text on the page.
 - Inline validation on blur, not on submit.
 - The submit button states the outcome: "Send My Request," not "Submit."
 - Confirm success in place — never leave the user wondering whether it worked.
+- **A form isn't the default contact mechanism** — for a local or service business, a direct
+  `tel:`/`mailto:`/directions link (§9) usually converts better and needs no backend. Reach for
+  a form only where the request genuinely needs structured intake a phone call or click can't
+  give — a multi-step booking flow (§20 in `07-react-tailwind-snippets.md`) is not "a form," it's
+  a wizard, and its steps should be selections and pickers, not a wall of text inputs.
 
 ---
 
@@ -124,3 +129,29 @@ The hero H1 is the highest-leverage text on the page.
 **Universal:** write in second person ("you"), keep sentences under ~20 words, and prefer
 concrete nouns to abstract ones. Never make medical, legal, or financial claims that a real
 business would need to substantiate.
+
+---
+
+## 9. Contact: Links, Not a Form
+
+For a local or service business, the highest-converting contact section is often not a form at
+all — it's three direct, one-tap actions: call, email, get directions.
+
+* **`tel:` and `mailto:` links**, not routed through a "Send us a message" form that adds a step
+  and a chance to be ignored.
+* **Directions, not a static address.** Link the address to
+  `https://www.google.com/maps/dir/?api=1&destination=<url-encoded address>` —
+  deliberately **omit the `origin` parameter** so Google Maps defaults the starting point to
+  the visitor's current location, rather than requiring them to type one in.
+* **Every day of the week, not a collapsed range.** "Mon–Sat: 9am–8pm" hides that Wednesday is
+  actually different, and a visitor checking on a Sunday has no way to tell if "Closed" is
+  implied or just omitted. List all seven days explicitly, each with its own hours or "Closed."
+* On mobile, these three links commonly collapse into a compact row of icon-only circular
+  buttons — visually like a social-icon row. Keep the `aria-label` on each ("Call [number]",
+  "Get directions to [address]") even when the text label is visually hidden; see
+  `06-ui-ux-accessibility.md` §8.
+* A **map is a visual aid, not a duplicate of this content.** If the page also has a location
+  map section, it shouldn't repeat the address as its own separate block — one section states
+  the address as a directions link, the other renders the map. Two sections independently
+  claiming to be "the" contact/location section is a sign one of them shouldn't exist; see
+  `08-anti-patterns.md` §7.

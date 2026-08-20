@@ -117,3 +117,59 @@ disagree; the grid is a default, not a straitjacket.
 - [ ] Single `<h1>`; heading order descends
 - [ ] Zero Lorem Ipsum; zero placeholder gray boxes
 - [ ] Audited against `08-anti-patterns.md`
+- [ ] Every section and modal the build committed to (Phase 1–4) is present exactly once —
+      re-count against the plan, since sections and modals are what silently go missing in a
+      large build
+- [ ] Every dialog closes on Escape, closes on outside click, closes on its × button, and locks
+      body scroll while open — and all of them share one visual language (§9)
+- [ ] Mobile reviewed as its own layout per §8, not just the desktop layout reflowed narrower
+
+---
+
+## 8. Mobile Is a Separate Design, Not a Reflow
+
+Tailwind's default behavior — stack the grid, shrink the type — is correct for most sections.
+But for a handful of section types, the *right* mobile experience has a genuinely different
+structure from desktop, not just a narrower version of the same one. Build these as two
+explicit layouts with `hidden md:flex` / `flex md:hidden` (or `md:block` / `md:hidden`) rather
+than trying to force one layout to reflow into both:
+
+| Section | Desktop | Mobile |
+|---|---|---|
+| Navigation | Full inline link row | Collapsed hamburger menu |
+| Hero content panel | Vertically centered, slight upward offset | Anchored in the upper third (`items-start pt-[28vh]`), not centered |
+| About | Two columns, image alongside text | Single column, **image hidden entirely** (`hidden md:block` on the image) — a stacked image-then-text block reads as worse than no image |
+| Logo wall / "Trusted by" | Static row | Continuous marquee (see `04-motion.md` §10) |
+| Feature/service grid | Multi-column card grid | Single-column compact tiles — icon/image left, text right, tighter spacing |
+| Team grid | Centered photo cards | Compact tiles like the above, but with **more** breathing room between photo and text than a service tile gets |
+| Testimonials / news cards | Multi-column grid | One-at-a-time auto-advancing slider (see `MobileSlider` in `07-react-tailwind-snippets.md` §19) |
+| Contact details | Icon + label + value, one per row | A row of icon-only circular buttons (`grid-cols-3`) — same links, `aria-label` carries the text that's visually hidden |
+
+The reasoning is the same in every row: some content (a full nav, a two-column layout, a value
+label) earns its place on a wide viewport but becomes clutter on a narrow one, and the fix is
+not a smaller version of the same thing — it's a different, deliberately designed alternative.
+Treat mobile as a second design pass in Phase 5 of `00-BUILD-PROTOCOL.md`, not a checkbox.
+
+## 9. Modal Dialog Standard
+
+Every dialog on a page — a booking flow, a team-member profile, an article reader, an image
+lightbox — should be built on one shared shell (`Modal` in `07-react-tailwind-snippets.md`
+§16) so a visitor never has to relearn how to close a popup partway through a site. A page with
+four different modal implementations, each closing a different way, is a worse experience than
+four modals that all look and behave identically.
+
+Non-negotiable on every modal, no exceptions:
+
+* **Escape** closes it.
+* **Clicking outside the panel** (on the overlay) closes it. Clicking inside the panel never
+  bubbles up and closes it accidentally.
+* An explicit **× button** closes it, placed in the same corner every time.
+* **Body scroll is locked** while it's open (`useBodyScrollLock`) and restored on close.
+* **Consistent visual language:** the same overlay opacity/blur, the same corner radius, the
+  same open/close transition timing across every modal on the site.
+* A multi-step flow (a booking wizard) shows a **step-progress indicator** and a **"← Back"**
+  control on every step after the first, and supports being **opened mid-flow** with a value
+  already selected — e.g., a "Book" link on a specific service card should land the visitor
+  past the service-selection step, not force them to re-pick what they already clicked on.
+* A full-bleed image viewer (a lightbox) follows the same closing rules even though its shell
+  looks different from a centered card — see `Lightbox` in `07-react-tailwind-snippets.md` §17.

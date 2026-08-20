@@ -66,9 +66,12 @@ generated site feel composed instead of assembled from a single repeating templa
 | **Timeline** | Vertical or horizontal chronological narrative — origin story, milestones. ⚙ `Timeline` |
 | **Stat Band** | Dark punctuation section, count-up numerals, high contrast |
 | **Founder Letter** | Long-form editorial block, drop cap, a real signature or portrait |
-| **Interactive Map Block** | Location(s) with custom markers — multi-location retail, service areas |
+| **Interactive Map Block** | Location(s) with custom markers — multi-location retail, service areas. ⚙ `LocationMap` |
 | **Split-Screen Compare** | Two contrasting halves: before/after, us/them, old way/new way |
 | **Menu/Price List** | Item + dotted leader + price, grouped by category |
+| **Wizard Flow** | Multi-step modal (booking, quote request) with a progress indicator and back control. ⚙ `BookingWizard` |
+| **Icon-Row Contact Block** | Phone/email/directions collapsed to a row of icon-only circular buttons — the mobile counterpart to a detailed contact list. See `06-ui-ux-accessibility.md` §8. |
+| **Mobile Auto-Advance Slider** | A grid's mobile counterpart — one item shown at a time, auto-advancing, pausing after interaction. ⚙ `MobileSlider` |
 
 Pick patterns that don't repeat. If a page uses Bento Grid for features, its testimonials
 section should not also be a symmetric card grid — vary the container, not just the content.
