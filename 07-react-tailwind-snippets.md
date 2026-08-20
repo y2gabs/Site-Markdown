@@ -1128,3 +1128,11 @@ root.render(<App />);
 - Do not use optional chaining inside JSX attribute strings in very old Babel builds — use
   explicit guards if a parse error appears.
 - Preconnect to `fonts.gstatic.com` with `crossorigin` or the font swap will visibly flash.
+- **Avoid an icon lookup object** (`const icons = { clock: <circle .../><polyline .../>, ... }`)
+  — a plain object's values must each already be one valid JSX expression, so any icon needing
+  more than one element (a clock's face *and* hands, a mail envelope's outline *and* flap)
+  breaks with "Adjacent JSX elements must be wrapped in an enclosing tag" the moment someone
+  adds one. Every icon in this framework (§23, `Arrow` in the reference template, etc.) is
+  instead its own small component returning a complete `<svg>` — components can hold as many
+  sibling elements as they need inside their own root, so this failure class can't occur. If a
+  lookup-object *is* used anyway, wrap any multi-element entry in `<g>…</g>` or `<>…</>`.
