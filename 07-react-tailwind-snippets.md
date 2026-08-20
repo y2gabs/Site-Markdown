@@ -161,8 +161,15 @@ const Reveal = ({ children, delay = 0, y = 24, className = '' }) => {
 
 ## 5. Sticky Glass Nav
 
-Transparent over the hero, glass after scroll. Transitions background/blur/border only —
-never height, which would reflow the page.
+**Glass over the hero from the first frame, solid after scroll — never truly transparent.**
+Pre-scroll is not "no background," it's a *dark* glass scrim (`bg-ink/40 backdrop-blur-md`):
+the nav sits on top of whatever the hero photo happens to show at that exact spot, and a hero
+image is rarely uniformly dark everywhere. `bg-transparent` bets the nav's legibility on the
+photo being dark under the logo and every link, every time, for every business's hero image —
+it isn't, and the nav reads as drowned out the instant it sits over a bright area. The scrim
+is what `06-ui-ux-accessibility.md` §3 already requires for any text over an image; a nav is
+not an exception to that rule just because it's also interactive. Transitions
+background/blur/border only — never height, which would reflow the page.
 
 ```jsx
 const Nav = ({ links }) => {
@@ -173,15 +180,17 @@ const Nav = ({ links }) => {
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-[background-color,backdrop-filter,border-color]
                   duration-300 ease-out-quart border-b
-                  ${solid ? 'bg-ground/80 backdrop-blur-md border-line' : 'bg-transparent border-transparent'}`}
+                  ${solid ? 'bg-ground/80 backdrop-blur-md border-line' : 'bg-ink/40 backdrop-blur-md border-white/10'}`}
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <a href="#" className="font-display text-xl tracking-tight text-ink">Brand</a>
+        <a href="#" className={`font-display text-xl tracking-tight transition-colors
+                                ${solid ? 'text-ink' : 'text-white'}`}>Brand</a>
         <ul className="hidden items-center gap-8 md:flex">
           {links.map((l) => (
             <li key={l.href}>
               <a href={l.href}
-                 className="group relative text-sm text-ink/80 transition-colors hover:text-ink">
+                 className={`group relative text-sm transition-colors
+                            ${solid ? 'text-ink/75 hover:text-ink' : 'text-white/85 hover:text-white'}`}>
                 {l.label}
                 <span className="absolute -bottom-1 left-0 h-px w-0 bg-accent
                                  transition-[width] duration-300 ease-out-expo group-hover:w-full" />
@@ -193,7 +202,8 @@ const Nav = ({ links }) => {
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? 'Close menu' : 'Open menu'}
           aria-expanded={open}
-          className="grid h-11 w-11 place-items-center md:hidden"
+          className={`grid h-11 w-11 place-items-center md:hidden transition-colors
+                     ${solid ? 'text-ink' : 'text-white'}`}
         >
           <span className="sr-only">Menu</span>
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none"

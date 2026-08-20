@@ -336,12 +336,18 @@ const LINKS = [
   { href: '#questions',label: 'Questions'},
 ];
 
+/* Glass scrim over the hero from the first frame, solid after scroll — never truly
+   transparent. A raw hero photo is rarely uniformly dark under every letter of the logo
+   and every nav link, so bg-transparent bets legibility on the photo cooperating; the
+   dark glass scrim (bg-ink/40 backdrop-blur-md) is what actually guarantees contrast,
+   same as the mandatory-scrim rule for any text over an image (06-ui-ux-accessibility.md
+   §3). See 07-react-tailwind-snippets.md §5. */
 const Nav = () => {
   const solid = useScrollY() > 40;
   const [open, setOpen] = useState(false);
   return (
     <header className={'fixed inset-x-0 top-0 z-50 border-b transition-[background-color,backdrop-filter,border-color] duration-300 ease-out-quart ' +
-      (solid ? 'bg-ground/80 backdrop-blur-md border-line' : 'bg-transparent border-transparent')}>
+      (solid ? 'bg-ground/80 backdrop-blur-md border-line' : 'bg-ink/40 backdrop-blur-md border-white/10')}>
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4" aria-label="Primary">
         <a href="#" className={'font-display text-2xl tracking-tight transition-colors ' + (solid ? 'text-ink' : 'text-white')}>
           Infinessence

@@ -68,6 +68,12 @@ for perceived quality than adding any new effect.
 ## 6. Accessibility Tells
 
 - White text directly on a photo with no scrim.
+- **A hero-overlay nav shipped as `bg-transparent` before scroll.** Reads as the same failure
+  as the bullet above, just easy to miss because the nav isn't "over an image" in the same
+  obvious way a hero headline is — it's still sitting on top of the same photo. A raw hero image
+  is rarely uniformly dark under every letter of the logo and every link; a real scrim
+  (`bg-ink/40 backdrop-blur-md`) is what actually guarantees contrast regardless of what's
+  behind it at that exact pixel. See `07-react-tailwind-snippets.md` §5.
 - `outline-none` with nothing replacing it.
 - `text-gray-400` on `bg-gray-100`.
 - Icon-only buttons with no `aria-label`.
