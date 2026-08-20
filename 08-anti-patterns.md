@@ -148,6 +148,14 @@ in a visual review because the page still *looks* finished.
   the nav toggle, easy to do if a build's icon set puts both glyphs near each other, breaks the
   one piece of mobile navigation every visitor already knows how to find. The toggle is a
   hamburger (three or two horizontal lines) that becomes an × when open; nothing else.
+- **A button or icon rendering as a bare `?`** — "Next: Staff ?" where an arrow belongs, a
+  close button that's just a question mark. This is mojibake: a literal special-character glyph
+  (`×`, `→`, `✓`, a curly quote) was typed directly into JSX text, and some step in the
+  generation or storage pipeline re-saved the file under an encoding that can't represent that
+  byte, so the browser substitutes the Unicode replacement character. `<meta charset="UTF-8">`
+  doesn't prevent this — it only tells the browser how to read bytes that already arrived
+  correct or already arrived corrupted. The fix is inline SVG for every icon-like glyph, not a
+  charset tweak; see `07-react-tailwind-snippets.md`'s Environment Gotchas and Hard Rule 16.
 
 ---
 

@@ -947,7 +947,11 @@ const ChatWidget = () => {
               <h4 className="font-display text-sm font-semibold">Studio Assistant</h4>
             </div>
             <button onClick={() => setOpen(false)} aria-label="Close chat"
-                    className="text-lg font-bold text-accent-ink/80 hover:text-accent-ink">×</button>
+                    className="grid h-8 w-8 place-items-center rounded-full text-accent-ink/80 hover:text-accent-ink">
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.75">
+                <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+              </svg>
+            </button>
           </div>
 
           <div className="flex-1 space-y-3 overflow-y-auto bg-ground/50 p-4">

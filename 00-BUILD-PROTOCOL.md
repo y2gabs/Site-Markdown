@@ -168,3 +168,8 @@ increasing whitespace. If a change is needed and the direction is unclear, **sub
     close button drawn as a checkmark, and so on. `01-design-system.md`'s Iconography section
     already requires one consistent icon *set*; this is the companion rule that each icon must
     also be the *correct* glyph for what it does, not a lookalike swapped in by mistake.
+16. No literal special-character glyph (`×`, `→`, `←`, `✓`, curly quotes) typed directly into
+    JSX text for an icon, close button, or arrow. These are the most fragile bytes in any
+    copy/paste or AI-regeneration pipeline and silently become `?` the moment something in that
+    pipeline re-saves the file under a different encoding. Inline SVG only — see
+    `07-react-tailwind-snippets.md`'s Environment Gotchas.
