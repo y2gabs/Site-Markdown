@@ -105,9 +105,14 @@ Color and type set the mood; photography proves it's real.
   correct default and works across nearly every industry. Duotone reads more technical/modern.
   Filled/solid reads more playful/bold. Never mix styles on one page.
 * **Icons never stand alone.** Always paired with a label — an icon is a scannable accent to
-  text, not a substitute for it.
-* **Size to context:** 20–24px inline with text, 32–40px as a feature-card header. Never an
-  arbitrary size chosen per instance.
+  text, not a substitute for it. **Social profile links are the deliberate exception:** X,
+  Facebook, Instagram, LinkedIn, etc. are recognized by their mark alone, so render them as
+  icon-only circular buttons, never a text link list ("Facebook · Instagram · LinkedIn"). Carry
+  the label in `aria-label` instead of visible text — see `SocialLinks` in
+  `07-react-tailwind-snippets.md` §23.
+* **Size to context:** 20–24px inline with text, 32–40px as a feature-card header, 44px minimum
+  touch target for any icon-only button (social links included). Never an arbitrary size chosen
+  per instance.
 * Prefer a single well-made icon set (e.g., Heroicons, Phosphor, Lucide) over mixing sources —
   inconsistent stroke weight between icons is as visible a tell as inconsistent radii.
 

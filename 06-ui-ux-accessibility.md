@@ -144,6 +144,9 @@ than trying to force one layout to reflow into both:
 | Team grid | Centered photo cards | `CompactTile` list like the above, but with a **larger** photo and **more** gap (`gap-4`) than a service tile gets — the whole tile is the click target, opening the profile modal |
 | Testimonials / news cards | Multi-column grid | One-at-a-time auto-advancing slider (see `MobileSlider` in `07-react-tailwind-snippets.md` §19) |
 | Contact details | Rows of icon + label + value inside one card — icon `w-6 h-6` in a `p-3` box, value `text-2xl font-bold`, label `text-xs uppercase` | Either (a) a row of icon-only circular buttons (`grid-cols-3`) when contact is a compact footer-style block, or (b) separate stacked cards, one per link (`flex flex-col gap-4`, each `p-5`) when it's a full Contact section — icon drops to `w-5 h-5`, value to `text-lg`/`text-base`, label to `text-[10px] uppercase`. Either way, `aria-label` carries the full text even where it's visually reduced or hidden |
+| Photo gallery | Fixed `grid-cols-3` grid | **Also fixed `grid-cols-3`** — never drop to fewer columns to "fit" mobile. Tighten the gap instead (`gap-1.5` vs `gap-4`); the grid's own fluid sizing shrinks each tile to fit. See `07-react-tailwind-snippets.md` §18 |
+| Hero button row | Full, value-driven labels (`flex flex-row gap-3`) | Same row, same layout — but each button swaps to a **one-word** label (`sm:hidden` short label / `hidden sm:inline` full label) so two buttons never wrap inside a narrow flex row. See the Hero row above and `05-copywriting-cro.md` §4 |
+| Social profile links | Icon-only row, never a text link list | Same — icon-only at every breakpoint. See `SocialLinks` in `07-react-tailwind-snippets.md` §23 |
 
 The reasoning is the same in every row: some content (a full nav, a two-column layout, a value
 label) earns its place on a wide viewport but becomes clutter on a narrow one, and the fix is

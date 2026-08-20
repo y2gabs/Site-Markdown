@@ -287,6 +287,21 @@ fit without wrapping — rather than stacking on mobile (`flex-col sm:flex-row`)
 reads as more confident and matches the rest of the card's now-centered composition; the row
 just gets `justify-center` on mobile and `justify-start` on desktop via the parent's alignment.
 
+To guarantee that row never wraps, give each button label a one-word mobile fallback (see
+`05-copywriting-cro.md` §4):
+
+```jsx
+<Button href="#book" className="group">
+  <span className="sm:hidden">Book</span>
+  <span className="hidden sm:inline">Reserve Your First Session</span>
+  <Arrow />
+</Button>
+<Button href="#services" variant="onDark">
+  <span className="sm:hidden">Services</span>
+  <span className="hidden sm:inline">See how a session works</span>
+</Button>
+```
+
 ## 7. Count-Up Stat
 
 ```jsx
@@ -696,6 +711,14 @@ happens to ship with. Seeding the gallery with exactly 9 placeholder images must
 *reason* the arrows are hidden — the `images.length > PAGE_SIZE` check is what hides them, and
 it needs to keep working correctly the day a real client hands over 40 photos.
 
+**`grid-cols-3` stays fixed at every breakpoint — never drop to fewer columns on mobile.**
+The instinct to "fix" a cramped mobile gallery by going to 2 or 1 columns actually makes it
+worse: it turns a fixed, predictable 3×3 block into a long scroll, and breaks the "9 images
+visible at once" premise the pagination arrows depend on. Instead, let the grid's own fluid
+sizing shrink each tile (a `grid-cols-3` cell is always exactly one third of its container,
+whatever that container's width is) and tighten the *gap* on small screens — that's what keeps
+all 9 thumbnails on screen without introducing horizontal scroll.
+
 ```jsx
 const PAGE_SIZE = 9;
 
@@ -707,7 +730,7 @@ const Gallery = ({ images }) => {
 
   return (
     <div>
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-4">
         {visible.map((img, i) => {
           const globalIndex = page * PAGE_SIZE + i; // Lightbox always addresses the full array.
           return (
@@ -928,7 +951,70 @@ needs more breathing room to read as a person rather than a thumbnail:
 </ul>
 ```
 
-## 23. Mount
+## 23. Social Links
+
+**Icon-only, never a text link list** ("Facebook · Instagram · LinkedIn" reads as a checklist,
+not a design decision). One row of icon-only circular buttons, `aria-label` carrying the text
+the icon can't — the same discipline as any other icon-only button per
+`06-ui-ux-accessibility.md` §4 and the Iconography rules in `01-design-system.md`.
+
+```jsx
+const SocialLinks = ({ links, className = '' }) => (
+  <ul className={`flex items-center gap-3 ${className}`}>
+    {links.map((l) => (
+      <li key={l.label}>
+        <a href={l.href} aria-label={l.label} target="_blank" rel="noopener noreferrer"
+           className="grid h-11 w-11 place-items-center rounded-full border border-line
+                      text-muted transition-colors duration-300 hover:border-ink/30
+                      hover:text-ink focus-visible:outline-none focus-visible:ring-2
+                      focus-visible:ring-accent">
+          {l.icon}
+        </a>
+      </li>
+    ))}
+  </ul>
+);
+```
+
+Swap in real brand marks from each platform's press kit for production — the four below are
+simplified generic renditions, placeholders for the pattern rather than exact logos:
+
+```jsx
+const XIcon = (p) => (
+  <svg viewBox="0 0 24 24" {...p} fill="none" stroke="currentColor" strokeWidth="1.75">
+    <path d="M5 5l14 14M19 5L5 19" strokeLinecap="round" />
+  </svg>
+);
+const FacebookIcon = (p) => (
+  <svg viewBox="0 0 24 24" {...p} fill="none" stroke="currentColor" strokeWidth="1.75">
+    <path d="M14 9h2V6h-2c-1.66 0-3 1.34-3 3v2H9v3h2v6h3v-6h2.2l.8-3H14V9z" strokeLinejoin="round" />
+  </svg>
+);
+const InstagramIcon = (p) => (
+  <svg viewBox="0 0 24 24" {...p} fill="none" stroke="currentColor" strokeWidth="1.75">
+    <rect x="4" y="4" width="16" height="16" rx="5" />
+    <circle cx="12" cy="12" r="3.5" />
+    <circle cx="16.5" cy="7.5" r="0.75" fill="currentColor" stroke="none" />
+  </svg>
+);
+const LinkedInIcon = (p) => (
+  <svg viewBox="0 0 24 24" {...p} fill="none" stroke="currentColor" strokeWidth="1.75">
+    <rect x="4" y="4" width="16" height="16" rx="3" />
+    <line x1="8" y1="10.5" x2="8" y2="16" strokeLinecap="round" />
+    <circle cx="8" cy="7.5" r="0.75" fill="currentColor" stroke="none" />
+    <path d="M12 16v-3.2c0-1.3.9-2.3 2.2-2.3s1.8 1 1.8 2.3V16" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+// <SocialLinks links={[
+//   { label: 'X (Twitter)', href: 'https://x.com/…',         icon: <XIcon className="h-4 w-4" /> },
+//   { label: 'Facebook',    href: 'https://facebook.com/…',  icon: <FacebookIcon className="h-4 w-4" /> },
+//   { label: 'Instagram',   href: 'https://instagram.com/…', icon: <InstagramIcon className="h-4 w-4" /> },
+//   { label: 'LinkedIn',    href: 'https://linkedin.com/…',  icon: <LinkedInIcon className="h-4 w-4" /> },
+// ]} />
+```
+
+## 24. Mount
 
 React 18 root API. Mounting the wrong way (`ReactDOM.render`) is the most common silent
 failure in this environment.

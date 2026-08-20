@@ -77,6 +77,18 @@ The hero H1 is the highest-leverage text on the page.
   button styling change.
 * Secondary CTAs should be lower-commitment, not a second primary: "See how it works,"
   "View pricing."
+* **A hero's two-button row needs a one-word label on mobile.** The Hero pairs a primary and
+  secondary CTA in one `flex flex-row` (`04-motion.md`/`07-react-tailwind-snippets.md` §6) at
+  every breakpoint, and a full value-driven label ("Reserve Your First Session") wraps or
+  crowds its neighbor on a narrow screen. Keep the persuasive full label for `sm:` and up, and
+  swap in a single, still-specific word below it — "Book," "Reserve," "Shop," "Call," "Visit" —
+  never a generic one like "Click" or "Go":
+  ```html
+  <span className="sm:hidden">Book</span>
+  <span className="hidden sm:inline">Reserve Your First Session</span>
+  ```
+  This rule is specific to the hero's button *row* — a single standalone button elsewhere on
+  the page doesn't need the swap, since it isn't fighting a neighbor for width.
 
 ---
 
