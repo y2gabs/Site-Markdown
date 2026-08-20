@@ -135,6 +135,11 @@ in a visual review because the page still *looks* finished.
 - **A CTA button placed directly beside the mobile hamburger icon.** Crowds two touch targets
   together and duplicates a CTA the hero or the drawer itself already carries; see
   `06-ui-ux-accessibility.md` §8.
+- **The mobile nav toggle drawn as a chat bubble (or any icon other than a hamburger/close
+  pair).** A message-bubble glyph reads as "open chat," not "open menu" — swapping it in for
+  the nav toggle, easy to do if a build's icon set puts both glyphs near each other, breaks the
+  one piece of mobile navigation every visitor already knows how to find. The toggle is a
+  hamburger (three or two horizontal lines) that becomes an × when open; nothing else.
 
 ---
 

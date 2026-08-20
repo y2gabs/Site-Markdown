@@ -157,3 +157,14 @@ increasing whitespace. If a change is needed and the direction is unclear, **sub
     required.
 12. No section or modal quietly missing from the shipped build — run the Phase 7 completeness
     gate before calling anything done.
+13. No hero, About, or contact section that ships with only its desktop alignment. If the
+    pattern specifies `text-center md:text-left` (or similar) for mobile, that class must
+    appear in the actual markup — verify it's present, don't assume it survived from the
+    snippet. See `06-ui-ux-accessibility.md` §8.
+14. No CTA button crowded next to the mobile hamburger icon. The hamburger's own drawer, or the
+    hero directly below it, already carries the primary CTA — a second one beside the toggle is
+    redundant and cramps two touch targets together.
+15. No icon used against its established meaning — a hamburger toggle drawn as a chat bubble, a
+    close button drawn as a checkmark, and so on. `01-design-system.md`'s Iconography section
+    already requires one consistent icon *set*; this is the companion rule that each icon must
+    also be the *correct* glyph for what it does, not a lookalike swapped in by mistake.
