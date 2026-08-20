@@ -326,9 +326,14 @@ const PinnedHero = ({ src, alt, eyebrow, children }) => {
   const parallax = wide && !reduced ? scrollY * 0.28 : 0;
 
   // Derived from scrollY on every render — no extra state, no second scroll listener.
-  // Tuning knobs, not magic numbers: widen the divisors for a taller hero or a slower fade.
-  const opacity = reduced ? 1 : Math.max(0, 1 - scrollY / 600);
-  const scale = reduced ? 1 : Math.max(0.9, 1 - scrollY / 2000);
+  // smoothstep gives the fade an actual eased shape (slow-fast-slow) instead of a raw linear
+  // ratio, and being symmetric it eases out one direction and in the other for free — see
+  // 04-motion.md §9 for why a plain `1 - scrollY / 600` reads as mechanical, not eased.
+  const smoothstep = (t) => t * t * (3 - 2 * t);
+  const fadeT = Math.min(1, Math.max(0, scrollY / 600));
+  const scaleT = Math.min(1, Math.max(0, scrollY / 2000));
+  const opacity = reduced ? 1 : 1 - smoothstep(fadeT);
+  const scale = reduced ? 1 : 1 - 0.1 * smoothstep(scaleT);
 
   return (
     <section className="fixed inset-0 z-0 h-screen w-full overflow-hidden pointer-events-none">
@@ -370,8 +375,17 @@ Two things easy to get wrong:
   its own buttons stay clickable.
 - **The opacity/scale transform lives on the wrapper, not inline on `style` mixed with
   Tailwind's `transition-*` classes.** This is a per-frame scroll-driven value — giving it a
-  CSS `transition` would fight the constant updates and read as laggy. Let the value itself be
-  the animation; reserve `transition-*` classes for state changes like hover.
+  CSS `transition` would fight the constant updates and read as laggy or stepped, not eased.
+  Let the value itself be the animation; reserve `transition-*` classes for state changes like
+  hover. **Do not add `transition-all` "to smooth it out"** — that instinct is exactly backward
+  here; the smoothing comes from `smoothstep`, not from CSS.
+- **Copy the mobile/desktop class list on the inner wrapper exactly** —
+  `items-start justify-center px-4 pt-[28vh] text-center` for mobile,
+  `md:items-center md:justify-start md:-translate-y-8 md:pt-0 md:text-left` for desktop. This
+  is the one part of the component most often simplified away when hand-written from memory,
+  and dropping it silently reverts the hero to desktop-only alignment on every breakpoint —
+  headline and buttons left-aligned and vertically centered on a phone, which is the exact
+  regression this pattern exists to prevent (see `06-ui-ux-accessibility.md` §8's Hero row).
 
 ## 7. Count-Up Stat
 
@@ -1176,7 +1190,106 @@ the overline's so the eye travels downward through the group.
 heading treatment; applying it to paragraphs produces a wall of independently sliding lines that
 reads as noise. One or two masked headings per viewport is the ceiling.
 
-## 25. Mount
+## 25. Chat Widget
+
+A floating support/demo-assistant button, bottom-right on desktop — but a fixed-width panel
+anchored to `right-6` overflows off the left edge of a narrow phone the moment its width
+exceeds the visible space to that edge (a 384px-wide panel anchored 24px from the right edge of
+a 375px-wide viewport needs 33px more room than the screen has). **On mobile the panel becomes
+a centered, viewport-clamped overlay instead of an edge-anchored fixed-width one** — the same
+category of fix as the Contact block's dual layout in `06-ui-ux-accessibility.md` §8.
+
+```jsx
+const ChatWidget = ({ title = 'Assistant', initialMessage, getReply }) => {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState([{ sender: 'agent', text: initialMessage }]);
+  const [input, setInput] = useState('');
+
+  const send = (e) => {
+    e.preventDefault();
+    const text = input.trim();
+    if (!text) return;
+    setMessages((m) => [...m, { sender: 'user', text }]);
+    setInput('');
+    setTimeout(() => setMessages((m) => [...m, { sender: 'agent', text: getReply(text) }]), 700);
+  };
+
+  return (
+    <div className="fixed bottom-6 right-6 z-[90] sm:right-6">
+      {!open && (
+        <button onClick={() => setOpen(true)} aria-label={'Open ' + title}
+                className="grid h-14 w-14 place-items-center rounded-full bg-accent
+                           text-accent-ink shadow-lift transition-transform duration-300
+                           hover:scale-105">
+          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.75">
+            <path d="M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      )}
+
+      {open && (
+        // Mobile: `inset-x-4` alone centers AND clamps the width (left:16px, right:16px with
+        // no explicit width computes the width as viewport − both insets) — no separate
+        // width/transform needed, and none should be added alongside it. Desktop cancels the
+        // insets and reverts to a fixed-width panel anchored bottom-right.
+        <div className="fixed inset-x-4 bottom-6 h-[70vh] max-h-[480px]
+                        sm:inset-x-auto sm:left-auto sm:right-6 sm:bottom-6 sm:h-[450px] sm:w-96
+                        flex flex-col overflow-hidden rounded-3xl border border-line bg-surface
+                        shadow-lift">
+          <div className="flex items-center justify-between bg-accent p-4 text-accent-ink">
+            <div className="flex items-center gap-3">
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" aria-hidden="true" />
+              <h4 className="font-display text-sm font-semibold">{title}</h4>
+            </div>
+            <button onClick={() => setOpen(false)} aria-label="Close chat"
+                    className="text-lg font-bold text-accent-ink/80 hover:text-accent-ink">×</button>
+          </div>
+
+          <div className="flex-1 space-y-3 overflow-y-auto bg-ground/50 p-4">
+            {messages.map((m, i) => (
+              <div key={i} className={'flex ' + (m.sender === 'user' ? 'justify-end' : 'justify-start')}>
+                <div className={'max-w-[80%] rounded-2xl p-3 text-xs leading-relaxed ' +
+                  (m.sender === 'user' ? 'bg-accent text-accent-ink' : 'border border-line bg-surface text-ink')}>
+                  {m.text}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <form onSubmit={send} className="flex gap-2 border-t border-line bg-surface p-3">
+            <input value={input} onChange={(e) => setInput(e.target.value)}
+                   placeholder="Type a message…"
+                   className="min-h-[44px] flex-1 rounded-xl bg-ground px-3 text-xs
+                              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" />
+            <button type="submit" aria-label="Send"
+                    className="grid h-11 w-11 shrink-0 place-items-center rounded-xl
+                               bg-accent text-accent-ink">
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.75">
+                <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+The panel is its own independently `fixed` element on every breakpoint, not nested inside the
+toggle button's positioning — `fixed inset-x-4 bottom-6` centers and clamps it to the viewport
+on mobile with no separate width or transform needed, and `sm:inset-x-auto sm:left-auto
+sm:right-6` cancels those insets at `sm` and up so it reverts to a normal fixed-width panel
+anchored to the same corner the button sits in. Resist adding a width or a centering transform
+alongside `inset-x-4` — setting `left` and `right` on a fixed element with no explicit width
+already computes that width as the space between them, and adding a second sizing mechanism on
+top is exactly the contradictory-CSS mistake that produces a panel with an ambiguous, cascade-
+order-dependent width instead of a reliably viewport-clamped one. This is a **front-end demo
+only** — `getReply` should return canned, keyword-matched responses (per
+`05-copywriting-cro.md`'s no-fabricated-backend principle), never a real API call from a static
+single-file build.
+
+## 26. Mount
 
 React 18 root API. Mounting the wrong way (`ReactDOM.render`) is the most common silent
 failure in this environment.

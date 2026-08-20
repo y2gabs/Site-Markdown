@@ -179,20 +179,43 @@ two breakpoints diverge here specifically.
 Because the hero is genuinely pinned (`position: fixed`, not scrolling away like an in-flow
 section), its content can do something an in-flow section can't: **fade and settle
 continuously with scroll position, in both directions**, since the card never actually leaves
-the viewport — it just recedes behind whatever is sliding over it. This is the "ease in up and
-ease in down" feel: scroll down and the card eases out (opacity down, a slight scale-down);
-scroll back toward the top and it eases back in, because it's a live function of `scrollY`, not
-a one-time triggered reveal.
+the viewport — it just recedes behind whatever is sliding over it. This is the "ease up in,
+ease down out" feel: scroll down and the card eases out (opacity down, a slight scale-down);
+scroll back toward the top and it eases back in — and it needs to be an actual **easing curve**,
+not a straight-line ratio, or the motion reads as mechanical rather than eased.
 
 ```jsx
-const opacity = Math.max(0, 1 - scrollY / 600);   // fully faded by 600px of scroll
-const scale   = Math.max(0.9, 1 - scrollY / 2000); // settles at 0.9, never smaller
+const smoothstep = (t) => t * t * (3 - 2 * t); // symmetric S-curve: slow → fast → slow
+
+const fadeT  = Math.min(1, Math.max(0, scrollY / 600));  // 0→1 raw progress over 600px
+const scaleT = Math.min(1, Math.max(0, scrollY / 2000)); // 0→1 raw progress over 2000px
+
+const opacity = 1 - smoothstep(fadeT);          // fully faded by 600px of scroll
+const scale   = 1 - 0.1 * smoothstep(scaleT);   // settles at 0.9, never smaller
 ```
 
-Apply both to the **card wrapper as a whole** — one continuous transform on the outer
-positioning element, not a separate animation per line or per button. The badge, headline,
-subhead, and buttons ease out together as one composed unit; animating them individually here
-would compete with the line-mask heading treatment in §11, which is for in-flow section
+**Ease the *progress value*, not the CSS.** A raw linear mapping (`1 - scrollY / 600`) moves at
+constant velocity the entire way — the fade starts and stops as abruptly as it moves in
+between, which is what reads as mechanical rather than "eased." Running that same `0→1`
+progress through `smoothstep` first gives it a slow start and a slow finish with the motion
+concentrated in the middle, which is what an eased curve actually looks like. Because the curve
+is symmetric, it doesn't need separate "ease out" and "ease in" formulas for the two scroll
+directions — the exact same function, read forward as `scrollY` increases or backward as it
+decreases, eases out one way and eases in the other automatically.
+
+**Never add a `transition-*` utility class to the element carrying this style.** The value
+already changes continuously, once per scroll frame; layering a CSS transition on top makes the
+element chase a moving target, which shows up as a stepped, laggy motion — the opposite of
+"eased" — rather than smoothing anything. If a build has `transition-all` (or any
+`transition-*`) sitting next to an inline `style={{ opacity, transform }}` driven by `scrollY`,
+that's the bug, not the easing math; delete the class. Reserve `transition-*` for actual state
+changes on that element — hover, focus, open/closed — never for a value already being driven
+frame-by-frame.
+
+Apply both `opacity` and `scale` to the **card wrapper as a whole** — one continuous transform
+on the outer positioning element, not a separate animation per line or per button. The badge,
+headline, subhead, and buttons ease together as one composed unit; animating them individually
+here would compete with the line-mask heading treatment in §11, which is for in-flow section
 headings, not this pinned hero.
 
 This is a **derived value recomputed on render**, not new state and not a second scroll
@@ -201,14 +224,14 @@ listener — it reads the same `scrollY` already tracked by `useScrollY`
 already sitting on that value.
 
 Divide by zero risk aside, the two divisors above (`600`, `2000`) are tuning knobs, not magic
-constants — a taller hero or a slower-paced site can widen both; the shape (linear, clamped)
+constants — a taller hero or a slower-paced site can widen both; the *shape* (eased, clamped)
 is what matters more than the exact numbers. Under `prefers-reduced-motion`, skip the
 computation entirely and render `opacity: 1, scale: 1` unconditionally — a fade tied to scroll
 position is exactly the kind of motion that rule exists to suppress (§7).
 
 See `PinnedHero` in `07-react-tailwind-snippets.md` §6 for the full implementation — the fixed
-positioning, the floating card, the mobile/desktop divergence, and this scroll-linked fade,
-composed together. `ParallaxHero` (also §6) is the simpler alternative for a hero that's
+positioning, the floating card, the mobile/desktop divergence, and this scroll-linked eased
+fade, composed together. `ParallaxHero` (also §6) is the simpler alternative for a hero that's
 allowed to scroll away normally; the two are different techniques, not two names for the same
 thing, and a page uses one or the other.
 

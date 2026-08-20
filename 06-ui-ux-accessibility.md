@@ -138,7 +138,7 @@ than trying to force one layout to reflow into both:
 |---|---|---|
 | Navigation | Full inline link row | Collapsed hamburger menu |
 | Hero content panel | Card at `w-[55%]`, vertically centered with a slight upward lift (`-translate-y-8`), text and buttons **left-aligned** | Card widens to `w-full`, anchored in the upper third (`items-start pt-[28vh]`), text and buttons **centered** — see `ParallaxHero` in `07-react-tailwind-snippets.md` §6 |
-| About | Two columns, image alongside text, text left-aligned | Single column, text **centered**, **image hidden entirely** (`hidden md:block` on the image) — a stacked image-then-text block reads as worse than no image |
+| About | Two columns, image alongside text, text left-aligned | Single column, text **centered**, **image hidden entirely** (`hidden md:block` on the image) — a stacked image-then-text block reads as worse than no image. `text-center` only centers text and inline content — a stat block or social-icon row inside the same column is a `flex`/`grid` container and needs its own `justify-center` (and `mx-auto` if it has a fixed width), or it stays left-aligned inside an otherwise-centered column |
 | Logo wall / "Trusted by" | Static row | Continuous marquee (see `04-motion.md` §10) |
 | Feature/service grid | Multi-column card grid | Single-column `CompactTile` list — small icon media (`gap-3`), a compact action button. See `07-react-tailwind-snippets.md` §22 |
 | Team grid | Centered photo cards | `CompactTile` list like the above, but with a **larger** photo and **more** gap (`gap-4`) than a service tile gets — the whole tile is the click target, opening the profile modal |
@@ -147,6 +147,8 @@ than trying to force one layout to reflow into both:
 | Photo gallery | Fixed `grid-cols-3` grid | **Also fixed `grid-cols-3`** — never drop to fewer columns to "fit" mobile. Tighten the gap instead (`gap-1.5` vs `gap-4`); the grid's own fluid sizing shrinks each tile to fit. See `07-react-tailwind-snippets.md` §18 |
 | Hero button row | Full, value-driven labels (`flex flex-row gap-3`) | Same row, same layout — but each button swaps to a **one-word** label (`sm:hidden` short label / `hidden sm:inline` full label) so two buttons never wrap inside a narrow flex row. See the Hero row above and `05-copywriting-cro.md` §4 |
 | Social profile links | Icon-only row, never a text link list | Same — icon-only at every breakpoint. See `SocialLinks` in `07-react-tailwind-snippets.md` §23 |
+| Floating chat/support widget | Fixed-width panel anchored to a corner (`right-6`) | **Centered, viewport-clamped overlay** (`inset-x-4`, no separate width) — an edge-anchored fixed-width panel overflows off the opposite edge the moment its width exceeds the room between it and that edge. See `ChatWidget` in `07-react-tailwind-snippets.md` §25 |
+| Nav CTA button | Sits inline with the link row | **Do not also place it next to the hamburger icon.** A "Book Now" button crowded beside the menu toggle duplicates a CTA the hero (or the drawer, if it has one) already carries, and cramps the two touch targets together. The hamburger opens to reveal navigation; it doesn't need a second CTA riding along next to it |
 
 The reasoning is the same in every row: some content (a full nav, a two-column layout, a value
 label) earns its place on a wide viewport but becomes clutter on a narrow one, and the fix is

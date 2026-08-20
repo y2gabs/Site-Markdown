@@ -115,6 +115,26 @@ in a visual review because the page still *looks* finished.
   re-animating it on every pass, is the amateur tell from `04-motion.md` §3. Direction picks
   which side an element enters from on its single permanent reveal — nothing is ever hidden
   again.
+- **A raw linear scroll-to-value mapping presented as "eased" motion** (`1 - scrollY / 600`
+  with no curve applied). Constant velocity the whole way through isn't easing — it's a ratio.
+  Run the `0→1` scroll progress through a curve like `smoothstep` before mapping it to opacity
+  or scale; see `04-motion.md` §9.
+- **A `transition-*` utility class on an element that also has a per-frame scroll-linked inline
+  `style`.** The element ends up chasing a constantly-moving target, which reads as laggy or
+  stepped — the opposite of the smoothness the transition class was added to achieve. Delete
+  the class; the easing belongs in the value's own curve, not in CSS.
+- **A hero, About, or contact section that quietly drops its documented mobile divergence** —
+  shipping with only the desktop alignment (`items-center`, left-aligned text, image visible)
+  at every breakpoint because the `md:` variants were simplified away when hand-copying the
+  pattern. Copy the class list exactly rather than approximating it from memory; see
+  `06-ui-ux-accessibility.md` §8.
+- **A floating panel — chat widget, cookie banner, promo toast — anchored to a screen edge at a
+  fixed pixel width with no mobile-specific treatment.** It overflows off the opposite edge the
+  moment its width exceeds the room between it and that edge on a narrow phone. See `ChatWidget`
+  in `07-react-tailwind-snippets.md` §25 for the centered, viewport-clamped mobile pattern.
+- **A CTA button placed directly beside the mobile hamburger icon.** Crowds two touch targets
+  together and duplicates a CTA the hero or the drawer itself already carries; see
+  `06-ui-ux-accessibility.md` §8.
 
 ---
 
