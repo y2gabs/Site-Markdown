@@ -119,52 +119,17 @@ glows.
 
 Hue angles to start from, then tune. Neutrals should borrow the accent's hue.
 
+Scoped to health & wellness for now (see `01-design-system.md`) — the full 44-industry table
+lives in that commit's history; restore via `git revert` rather than re-deriving it.
+
 | Industry | Accent H | Character |
 |---|---|---|
-| Agriculture / Forestry | 120–145 | Moss, olive, bark |
-| Automotive | 25 or 250 | Ember orange or electric blue on near-black |
 | Beauty / Personal Care | 30–50 | Clay, bone, burnished copper |
-| Barbershops / Men's Grooming | 45–60 | Warm brass on charcoal |
-| Business / Professional | 240–260 | Deep navy, restrained slate |
-| Marketing / Creative Agencies | brand-led | High-chroma single accent on stark neutral |
-| Technology / Electronics | 190–230 | Cyan / electric blue on charcoal |
-| SaaS / Software | brand-led | One saturated accent; avoid stock purple→indigo |
-| AI / Machine Learning | 230–260 or 150–170 | Electric accent on charcoal or near-white |
-| Web3 / Crypto | 260–280 or 160–180 | Restrained accent on true dark; avoid neon-rainbow |
-| Construction / Engineering | 60–80 | Safety amber, concrete, steel |
-| Interior Design | 30–50 | Warm muted neutral, very low chroma |
-| Coworking | 30–50 or 150–170 | Warm or fresh confident accent |
-| Education / Childcare | 45–70 + 200 | Warm sun with a cool secondary |
-| Entertainment / Nightlife | 300–330 | Magenta / violet on true dark |
-| Music / Audio | genre-led | Warm for acoustic, cool/dark for electronic |
-| Podcasts / Creators | brand-led | Warm, approachable default (30–50) |
-| Events / Weddings | 20–40 | Blush, champagne, ivory |
-| Event Planning | 20–40 | Restrained version of Events/Weddings |
-| Financial Services | 200–230 or 150 | Deep teal, petrol, forest |
-| Insurance | 200–230 or 140–160 | Confident blue or green, high contrast |
-| Dining | 20–40 | Terracotta, ember, cream |
-| Coffee / Cafés | 40–60 | Warm brown, cream |
-| Brewery / Winery / Distillery | 30–50 or 0–15 | Amber/copper or deep burgundy |
-| Groceries / Fresh Retail | 130–150 | Leaf green, kraft |
-| Bookstores / Stationery | 20–40 or 200–220 | Warm paper, one muted accent |
-| Government / Non-Profit | 230–250 | Civic blue, high contrast |
-| Nonprofit Advocacy | cause-led | High contrast, one confident accent |
 | Healthcare | 180–200 | Calm teal, soft sky |
 | Dental / Orthodontics | 170–200 | Fresh mint or sky, high-key bright |
 | Senior Living / Elder Care | 30–50 or 150–170 | Warm neutral, soft confident accent |
-| Home Trades | 30–50 | Work orange, slate |
-| Industrial / Manufacturing | 210–230 | Steel blue, graphite |
-| Legal | 250–270 or 40 | Oxblood, deep indigo, brass |
-| Logistics | 200–220 | Signal blue, motion |
-| Media / Publishing | 0–20 | Editorial red on paper white |
-| Pets / Veterinary | 35–60 or 170 | Warm honey, soft mint |
-| Real Estate | 40–60 | Warm stone, brass, charcoal |
-| Apparel / Jewelry | 0 (C≈0) | Near-monochrome; accent is the product |
-| Home Goods / Specialty | 50–75 | Ochre, terracotta, natural linen |
 | Sports / Fitness | 15–35 or 90 | High-energy orange or volt green |
 | Yoga / Studio Fitness | 100–140 or 20–40 | Soft sage or clay, low chroma |
-| Sustainability / CleanTech | 130–160 or 190–210 | Fresh green or sky blue |
-| Travel / Hospitality | 190–215 | Sea, sky, sun-bleached sand |
 
 ---
 

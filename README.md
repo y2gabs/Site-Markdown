@@ -17,7 +17,7 @@ The agent should follow the protocol's phases in order and start from `templates
 | File | Purpose |
 |---|---|
 | `00-BUILD-PROTOCOL.md` | **Start here.** Phased operating procedure and hard rules |
-| `01-design-system.md` | Layout archetypes, imagery/icon direction, 44 industry directions |
+| `01-design-system.md` | Layout archetypes, imagery/icon direction, industry directions (scoped to health & wellness for now) |
 | `02-color-system.md` | OKLCH palette construction, allocation, per-industry hues |
 | `03-typography.md` | Font pairings, fluid scale, setting rules |
 | `04-motion.md` | Easing, duration, scroll reveal, reduced motion |

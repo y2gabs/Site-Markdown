@@ -36,18 +36,13 @@ Pairing 11 is the honest escape hatch: if a single family is required, create hi
 
 ### Industry → Pairing
 
-- Beauty / Spa / Wellness / Yoga → 1, 8
-- Weddings / Events / Photography / Event Planning → 5, 2, 9 (as accent)
-- Apparel / Jewelry → 2, 7, 6
-- Real Estate / Architecture / Interiors / Coworking → 4, 6
-- Media / Publishing / Legal / Bookstores → 3, 7
-- Hospitality / Travel / Dining / Coffee → 1, 5
-- Technology / Finance / Industrial / SaaS / AI / Web3 → 11, 3 *(lean geometric; avoid delicate serifs)*
-- Agencies / Entertainment / Music → 2, 7, 11 *(oversized display, expressive)*
-- Education / Childcare / Pets / Senior Care → 10, 5
-- Healthcare / Dental / Insurance → 8, 11
-- Government / Nonprofit / Sustainability / Trades → 11, 3 *(clarity over ornament)*
-- Education / Pets / Childcare → 10, 5
+Scoped to health & wellness for now (see `01-design-system.md`) — the full cross-industry list
+lives in that commit's history; restore via `git revert` rather than re-deriving it.
+
+- Beauty / Personal Care / Yoga / Studio Fitness → 1, 8
+- Healthcare / Dental & Orthodontics → 8, 11
+- Senior Living / Elder Care → 1, 6 *(generous size for readability)*
+- Sports, Fitness & Recreation → 11 *(heavy display weights, tight tracking)*
 
 Load only the weights actually used — typically Display 400/600 and Text 400/500/600.
 
