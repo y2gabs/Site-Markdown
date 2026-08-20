@@ -17,7 +17,7 @@ The agent should follow the protocol's phases in order and start from `templates
 | File | Purpose |
 |---|---|
 | `00-BUILD-PROTOCOL.md` | **Start here.** Phased operating procedure and hard rules |
-| `01-design-system.md` | General styling rules + 25 industry directions |
+| `01-design-system.md` | Layout archetypes, imagery/icon direction, 44 industry directions |
 | `02-color-system.md` | OKLCH palette construction, allocation, per-industry hues |
 | `03-typography.md` | Font pairings, fluid scale, setting rules |
 | `04-motion.md` | Easing, duration, scroll reveal, reduced motion |
@@ -32,15 +32,21 @@ audits it.
 
 ## Design Philosophy
 
-Four ideas do most of the work:
+Six ideas do most of the work:
 
 1. **Commit to a system before writing markup.** One accent hue, two type families, one radius
    language — decided up front. Improvised styling is what makes generated sites look generic.
 2. **Neutrals are never gray.** Every neutral carries a trace of the accent's hue. This single
    detail separates designed pages from defaulted ones.
-3. **Asymmetry and varied rhythm.** Centered-everything with uniform section padding is the
+3. **Compose from named layout patterns, don't improvise structure.** The Layout Archetype
+   library in `01-design-system.md` (bento grids, masonry, before/after sliders, timelines…)
+   means every section has a reason to look the way it does, and no two sections repeat the
+   same shape.
+4. **Photography is art-directed, not sourced.** One consistent color grade and aspect-ratio
+   language across every image on the page — see Imagery & Art Direction in `01`.
+5. **Asymmetry and varied rhythm.** Centered-everything with uniform section padding is the
    clearest tell of machine-generated design.
-4. **The last pass is subtraction.** Nearly every page improves by removing a decorative
+6. **The last pass is subtraction.** Nearly every page improves by removing a decorative
    element and adding whitespace.
 
 ## Reference Implementation

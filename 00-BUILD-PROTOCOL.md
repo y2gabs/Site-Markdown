@@ -24,14 +24,19 @@ assumption.
 
 ---
 
-## Phase 1 — Choose the Signature Move
+## Phase 1 — Choose the Layout Archetypes and Signature Move
 
-Before styling anything, decide **the one thing that will make this site memorable**. Pull it
-from the industry's Signature Detail line, or invent something equivalent.
+Look up the industry's entry in `01-design-system.md`. It names a Hero pattern and one or two
+Section patterns from the **Layout Archetype** library — use those rather than improvising
+section structure from scratch. If no industry entry fits, pick archetypes directly from the
+library that match the Vibe.
+
+Then decide **the one thing that will make this site memorable** — the Signature line from the
+industry entry, or an equivalent you invent.
 
 Examples: a topographic contour divider; a full-bleed image that scrubs on scroll; oversized
 background section numerals; an accent panel that wipes away to reveal each image; a menu with
-dotted price leaders.
+dotted price leaders; a draggable before/after slider.
 
 A page with excellent fundamentals and no signature move looks *competent*. The signature move
 is what makes it look *designed*. One is enough — two compete.

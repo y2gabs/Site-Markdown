@@ -391,7 +391,154 @@ const Button = ({ as: Tag = 'a', variant = 'primary', className = '', children, 
 };
 ```
 
-## 12. Mount
+## 12. Bento Grid
+
+Asymmetric grid — one tile spans two columns/rows, the rest are equal. Backs the **Bento
+Grid** layout archetype in `01-design-system.md`. Adjust the `span` values per tile via the
+`className` passed in each item's data, not by editing the grid itself.
+
+```jsx
+const BentoGrid = ({ children }) => (
+  <div className="grid auto-rows-[minmax(14rem,auto)] grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    {children}
+  </div>
+);
+
+const BentoCard = ({ span = '', title, body, icon, className = '' }) => (
+  <div className={`group flex flex-col justify-between rounded-2xl bg-surface p-8 shadow-soft
+                   transition-[transform,box-shadow] duration-500 ease-out-expo
+                   hover:-translate-y-1 hover:shadow-lift ${span} ${className}`}>
+    <div>
+      {icon && <div className="h-8 w-8 text-accent">{icon}</div>}
+      <h3 className="mt-4 font-display text-display-sm text-ink">{title}</h3>
+      <p className="mt-2 max-w-measure text-muted">{body}</p>
+    </div>
+  </div>
+);
+
+// Usage — first tile spans 2 columns and 2 rows:
+// <BentoGrid>
+//   <BentoCard span="sm:col-span-2 lg:row-span-2" title="…" body="…" />
+//   <BentoCard title="…" body="…" />
+//   <BentoCard title="…" body="…" />
+//   <BentoCard span="sm:col-span-2" title="…" body="…" />
+// </BentoGrid>
+```
+
+## 13. Before/After Slider
+
+Draggable comparison. Backs the **Before/After Slider** archetype (trades, beauty, fitness,
+renovation, dental). Pointer events handle both mouse and touch; the range input underneath
+keeps it keyboard-accessible.
+
+```jsx
+const BeforeAfterSlider = ({ before, after, beforeAlt = 'Before', afterAlt = 'After' }) => {
+  const [pos, setPos] = useState(50);
+  const ref = useRef(null);
+
+  const updateFromClientX = (clientX) => {
+    const rect = ref.current.getBoundingClientRect();
+    const pct = ((clientX - rect.left) / rect.width) * 100;
+    setPos(Math.min(100, Math.max(0, pct)));
+  };
+
+  return (
+    <div ref={ref}
+      className="relative aspect-[4/3] w-full select-none overflow-hidden rounded-2xl shadow-lift"
+      onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); updateFromClientX(e.clientX); }}
+      onPointerMove={(e) => { if (e.buttons === 1) updateFromClientX(e.clientX); }}
+    >
+      <img src={after} alt={afterAlt} className="absolute inset-0 h-full w-full object-cover" draggable={false} />
+      <div className="absolute inset-0 h-full overflow-hidden" style={{ width: `${pos}%` }}>
+        <img src={before} alt={beforeAlt}
+             className="h-full w-full max-w-none object-cover"
+             style={{ width: ref.current ? ref.current.offsetWidth : '100%' }}
+             draggable={false} />
+      </div>
+      <div className="absolute inset-y-0 w-0.5 bg-white/90" style={{ left: `${pos}%` }}>
+        <div className="absolute left-1/2 top-1/2 grid h-11 w-11 -translate-x-1/2 -translate-y-1/2
+                        place-items-center rounded-full bg-white shadow-lift">
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M8 7l-4 5 4 5M16 7l4 5-4 5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </div>
+      <input type="range" min="0" max="100" value={pos}
+             onChange={(e) => setPos(Number(e.target.value))}
+             aria-label="Comparison slider"
+             className="absolute inset-x-0 bottom-3 mx-auto w-1/2 accent-white opacity-0 focus-visible:opacity-100" />
+    </div>
+  );
+};
+```
+
+## 14. Pricing / Comparison Table
+
+Three tiers, the middle visually elevated. Backs the **Comparison/Pricing Table** archetype.
+
+```jsx
+const PricingTable = ({ tiers }) => (
+  <div className="grid gap-8 md:grid-cols-3 md:items-end">
+    {tiers.map((t) => (
+      <div key={t.name}
+        className={`rounded-2xl p-8 transition-[transform,box-shadow] duration-500 ease-out-expo
+                    ${t.featured
+                      ? 'bg-ink text-ground shadow-lift md:-translate-y-4 md:py-12'
+                      : 'bg-surface text-ink shadow-soft hover:-translate-y-1 hover:shadow-lift'}`}>
+        {t.featured && (
+          <p className="text-overline uppercase text-accent">Most Popular</p>
+        )}
+        <h3 className={`mt-3 font-display text-display-sm ${t.featured ? '' : ''}`}>{t.name}</h3>
+        <p className="mt-4 flex items-baseline gap-1">
+          <span className="font-display text-display-md tabular-nums">{t.price}</span>
+          <span className={t.featured ? 'text-ground/60' : 'text-muted'}>/{t.period}</span>
+        </p>
+        <ul className="mt-8 space-y-3">
+          {t.features.map((f) => (
+            <li key={f} className="flex items-start gap-3 text-sm">
+              <svg viewBox="0 0 24 24" className="mt-0.5 h-4 w-4 shrink-0 text-accent"
+                   fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span className={t.featured ? 'text-ground/80' : 'text-muted'}>{f}</span>
+            </li>
+          ))}
+        </ul>
+        <Button href={t.href || '#'} variant={t.featured ? 'onDark' : 'ghost'} className="mt-8 w-full">
+          {t.cta || 'Choose Plan'}
+        </Button>
+      </div>
+    ))}
+  </div>
+);
+```
+
+## 15. Timeline
+
+Vertical chronological narrative. Backs the **Timeline** archetype (origin stories,
+milestones, class/session schedules).
+
+```jsx
+const Timeline = ({ items }) => (
+  <ol className="relative border-l border-line pl-8">
+    {items.map((item, i) => (
+      <Reveal as="li" key={item.year} delay={Math.min(i, 5) * 90} className="relative pb-12 last:pb-0">
+        <span className="absolute -left-[calc(2rem+5px)] top-1.5 h-2.5 w-2.5 rounded-full bg-accent
+                         ring-4 ring-ground" aria-hidden="true" />
+        <p className="text-overline uppercase text-accent">{item.year}</p>
+        <h3 className="mt-2 font-display text-display-sm">{item.title}</h3>
+        <p className="mt-2 max-w-measure text-muted">{item.body}</p>
+      </Reveal>
+    ))}
+  </ol>
+);
+```
+
+`Reveal` as defined in §4 renders a `<div>`; pass `as="li"` there (swap the hardcoded `<div>`
+for `React.createElement(as, …)`, or duplicate the component as `RevealLi` for a list context)
+so the timeline stays valid `<ol><li>` markup.
+
+## 16. Mount
 
 React 18 root API. Mounting the wrong way (`ReactDOM.render`) is the most common silent
 failure in this environment.

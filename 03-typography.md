@@ -36,13 +36,17 @@ Pairing 11 is the honest escape hatch: if a single family is required, create hi
 
 ### Industry → Pairing
 
-- Beauty / Spa / Wellness → 1, 8
-- Weddings / Events / Photography → 5, 2, 9 (as accent)
+- Beauty / Spa / Wellness / Yoga → 1, 8
+- Weddings / Events / Photography / Event Planning → 5, 2, 9 (as accent)
 - Apparel / Jewelry → 2, 7, 6
-- Real Estate / Architecture / Interiors → 4, 6
-- Media / Publishing / Legal → 3, 7
-- Hospitality / Travel / Dining → 1, 5
-- Technology / Finance / Industrial → 11, 3 *(lean geometric; avoid delicate serifs)*
+- Real Estate / Architecture / Interiors / Coworking → 4, 6
+- Media / Publishing / Legal / Bookstores → 3, 7
+- Hospitality / Travel / Dining / Coffee → 1, 5
+- Technology / Finance / Industrial / SaaS / AI / Web3 → 11, 3 *(lean geometric; avoid delicate serifs)*
+- Agencies / Entertainment / Music → 2, 7, 11 *(oversized display, expressive)*
+- Education / Childcare / Pets / Senior Care → 10, 5
+- Healthcare / Dental / Insurance → 8, 11
+- Government / Nonprofit / Sustainability / Trades → 11, 3 *(clarity over ornament)*
 - Education / Pets / Childcare → 10, 5
 
 Load only the weights actually used — typically Display 400/600 and Text 400/500/600.
