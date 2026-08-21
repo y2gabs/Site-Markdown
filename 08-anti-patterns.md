@@ -154,6 +154,12 @@ in a visual review because the page still *looks* finished.
   the nav toggle, easy to do if a build's icon set puts both glyphs near each other, breaks the
   one piece of mobile navigation every visitor already knows how to find. The toggle is a
   hamburger (three or two horizontal lines) that becomes an × when open; nothing else.
+- **HTML comment syntax (`<!-- ... -->`) typed inside the `<script type="text/babel">` block**,
+  most often as a section-boundary marker (`<!-- Section 4: Services -->`) copied out of habit
+  from plain-HTML annotation style. Babel's JSX parser reads `<!--` as a stray `<` and fails the
+  entire script with `SyntaxError: Unexpected token '<'` — a fatal, whole-page failure, not a
+  cosmetic one. The fix is `{/* ... */}` inside JSX and `//`/`/* ... */` inside plain JS; see
+  `07-react-tailwind-snippets.md`'s Environment Gotchas and Hard Rule 18.
 - **Assistant commentary trailing past `</html>` in the delivered file** — a recap like "I have
   generated the single-page application for..." appended after the closing code fence, which a
   canvas/export tool then saves as part of the same `index.html`. Browsers keep parsing and

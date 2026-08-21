@@ -1361,6 +1361,14 @@ root.render(<App />);
 
 - Script tag must be `<script type="text/babel">`, and Babel Standalone must load **after**
   React/ReactDOM.
+- **Never use HTML comment syntax (`<!-- ... -->`) anywhere inside the `<script type="text/babel">`
+  block** — not in JSX markup, not in plain JS logic. Babel's JSX parser treats `<!--` as a stray
+  `<` token and fails immediately with `SyntaxError: Unexpected token '<'`, taking down the whole
+  script and leaving nothing mounted. Use `{/* ... */}` for a comment inside JSX return trees, and
+  `//` or `/* ... */` for a comment inside plain JS (hooks, helper functions, data objects, event
+  handlers). This applies even to component-tree comments marking section boundaries
+  (`{/* Section 4: Services */}`, never `<!-- Section 4: Services -->`) — those are the ones most
+  likely to get typed as HTML comments out of habit, since they read like markup annotations.
 - The Tailwind CDN and Babel Standalone are development tools. They are correct for a
   single-file deliverable; note in the handoff that a production build should compile both.
 - `tailwind.config` must be assigned **before** any element using custom classes renders.

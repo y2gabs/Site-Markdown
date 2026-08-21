@@ -184,3 +184,8 @@ increasing whitespace. If a change is needed and the direction is unclear, **sub
     the exported `index.html` too, and a browser keeps rendering text nodes that appear after
     `</html>`, so a trailing summary shows up as raw garbled text at the bottom of the live page.
     See `08-anti-patterns.md`.
+18. No HTML comment syntax (`<!-- ... -->`) anywhere inside the `<script type="text/babel">`
+    block — not in JSX, not in plain JS logic, not even for a section-boundary marker comment.
+    Babel's parser treats `<!--` as a stray `<` and fails the whole script with
+    `SyntaxError: Unexpected token '<'`. Use `{/* ... */}` in JSX and `//`/`/* ... */` in plain
+    JS. See `07-react-tailwind-snippets.md`'s Environment Gotchas.

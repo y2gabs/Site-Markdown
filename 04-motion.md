@@ -147,19 +147,28 @@ visibly happens, which reads as broken.
 
 The correct recipe has no artificial height at all:
 
-```html
-<!-- Hero is fixed to the viewport, not sticky, and not interactive by default. -->
-<section class="fixed inset-0 z-0 h-screen w-full pointer-events-none">
-  <!-- background image, scrim, and Ken Burns / parallax effects. Re-enable
-       pointer-events-auto on any actual controls (a CTA button) inside it. -->
+```jsx
+{/* Hero is fixed to the viewport, not sticky, and not interactive by default. */}
+<section className="fixed inset-0 z-0 h-screen w-full pointer-events-none">
+  {/* background image, scrim, and Ken Burns / parallax effects. Re-enable
+      pointer-events-auto on any actual controls (a CTA button) inside it. */}
 </section>
 
-<!-- Everything else starts exactly one viewport down and slides up over the fixed
-     hero as the page scrolls — no spacer, no dead zone. -->
-<main class="relative z-20 mt-[100vh]">
+{/* Everything else starts exactly one viewport down and slides up over the fixed
+    hero as the page scrolls — no spacer, no dead zone. */}
+<main className="relative z-20 mt-[100vh]">
   …
 </main>
 ```
+
+This is JSX, not raw HTML — note `className`, not `class`, and `{/* ... */}` comments, not
+`<!-- ... -->`. Every code example in this framework that shows a fragment of the actual
+component tree uses JSX comment syntax for exactly this reason: the real output lives inside a
+`<script type="text/babel">` block, and an HTML comment there is not a comment to Babel's
+parser — it's an invalid token, and it fails with the same `SyntaxError: Unexpected token '<'`
+whether it was typed by hand or copied from a doc example that used the wrong comment style.
+See the guardrail in `07-react-tailwind-snippets.md`'s Environment Gotchas and Hard Rule 18 in
+`00-BUILD-PROTOCOL.md`.
 
 The hero never needs to be `position: sticky` at all — it's simply pinned to the viewport
 (`fixed inset-0`), and the content that follows starts at exactly `100vh` down and then behaves
