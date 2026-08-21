@@ -174,11 +174,14 @@ increasing whitespace. If a change is needed and the direction is unclear, **sub
     close button drawn as a checkmark, and so on. `01-design-system.md`'s Iconography section
     already requires one consistent icon *set*; this is the companion rule that each icon must
     also be the *correct* glyph for what it does, not a lookalike swapped in by mistake.
-16. No literal special-character glyph (`×`, `→`, `←`, `✓`, curly quotes) typed directly into
-    JSX text for an icon, close button, or arrow. These are the most fragile bytes in any
-    copy/paste or AI-regeneration pipeline and silently become `?` the moment something in that
-    pipeline re-saves the file under a different encoding. Inline SVG only — see
-    `07-react-tailwind-snippets.md`'s Environment Gotchas.
+16. No literal non-ASCII character (`×`, `→`, `←`, `✓`, curly quotes, em dash `—`, en dash `–`)
+    typed anywhere in the file — icons and body copy alike. These are the most fragile bytes in
+    any copy/paste or AI-regeneration pipeline and silently become `?`/`�` the moment something
+    in that pipeline re-saves the file under a different encoding — and copy is not a safe
+    exception, since a dash shows up in nearly every address, price range, and set of hours. Use
+    inline SVG for icon glyphs; use a plain ASCII hyphen-minus (` - `) in place of any em/en dash
+    in copy — never an HTML entity for copy, since `SITE_DATA` strings rendered via `{}` don't
+    decode entities. See `07-react-tailwind-snippets.md`'s Environment Gotchas.
 17. No prose, recap, or commentary outside the code fence when delivering a full-file build. A
     canvas/export tool saves the response verbatim — anything after the closing ``` lands inside
     the exported `index.html` too, and a browser keeps rendering text nodes that appear after

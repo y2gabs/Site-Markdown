@@ -167,14 +167,22 @@ in a visual review because the page still *looks* finished.
   file — it renders as a raw, garbled text block at the bottom of the live page. The response
   delivering a full-file build must be the fenced code block and nothing else; any recap belongs
   in a separate follow-up message, never appended to the same response as the file.
-- **A button or icon rendering as a bare `?`** — "Next: Staff ?" where an arrow belongs, a
-  close button that's just a question mark. This is mojibake: a literal special-character glyph
-  (`×`, `→`, `✓`, a curly quote) was typed directly into JSX text, and some step in the
-  generation or storage pipeline re-saved the file under an encoding that can't represent that
-  byte, so the browser substitutes the Unicode replacement character. `<meta charset="UTF-8">`
-  doesn't prevent this — it only tells the browser how to read bytes that already arrived
-  correct or already arrived corrupted. The fix is inline SVG for every icon-like glyph, not a
-  charset tweak; see `07-react-tailwind-snippets.md`'s Environment Gotchas and Hard Rule 16.
+- **A button, icon, or piece of copy rendering as `?` or `�`** — "Next: Staff ?" where an arrow
+  belongs, a close button that's just a question mark, or (the more insidious version, since it
+  hides inside otherwise-fine-looking text) `�` scattered through addresses, price ranges,
+  operating hours, and testimonials wherever the copy used an em or en dash. This is mojibake: a
+  literal non-ASCII character — an icon glyph (`×`, `→`, `✓`) or a piece of copy punctuation
+  (`—`, `–`, a curly quote) — was typed directly into the file, and some step in the generation
+  or storage pipeline re-saved it under an encoding that can't represent that byte, so the
+  browser substitutes the Unicode replacement character. `<meta charset="UTF-8">` doesn't
+  prevent this — it only tells the browser how to read bytes that already arrived correct or
+  already arrived corrupted. **This is not limited to icons** — a real generated build came back
+  with `�` in every address, price, and set of hours, because normal marketing copy uses em/en
+  dashes constantly. The fix: inline SVG for icon glyphs; a plain ASCII hyphen-minus (` - `) in
+  place of any em/en dash in copy, never an HTML entity there — `SITE_DATA` strings rendered via
+  a `{}` expression don't decode HTML entities, so `&mdash;` shows up as the literal text
+  `&mdash;`, not a fixed dash. See `07-react-tailwind-snippets.md`'s Environment Gotchas and
+  Hard Rule 16.
 
 ---
 

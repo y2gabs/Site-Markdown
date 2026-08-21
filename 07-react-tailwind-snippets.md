@@ -1384,19 +1384,35 @@ root.render(<App />);
   instead its own small component returning a complete `<svg>` — components can hold as many
   sibling elements as they need inside their own root, so this failure class can't occur. If a
   lookup-object *is* used anyway, wrap any multi-element entry in `<g>…</g>` or `<>…</>`.
-- **Never put a literal special-character glyph — `×`, `→`, `←`, `✓`, `•`, a curly quote — directly
-  in JSX text content for an icon, a close button, or an arrow.** These are the single most
-  fragile bytes in any copy/paste, clipboard, or AI-regeneration pipeline: the moment the file
-  passes through a step that reads or re-saves it under a different encoding than it was written
-  in, every one of these multi-byte characters silently becomes a `?` or `�` (the Unicode
-  replacement character) — a "Next: Staff →" button renders as "Next: Staff ?", a close button
-  renders as a bare "?". `<meta charset="UTF-8">` in `<head>` only declares how the *browser*
-  should interpret the bytes it receives; it does nothing to protect the bytes themselves during
-  whatever generated, stored, or transmitted the file before the browser saw it.
+- **Never put a literal non-ASCII character — `×`, `→`, `←`, `✓`, `•`, a curly quote, an em dash
+  `—`, an en dash `–` — anywhere in the file, icon or body copy alike.** This was originally
+  scoped to "icon-like glyphs," but real-world evidence says it isn't limited to icons: a build
+  came back with `�` in every address, every price range, every set of operating hours, and
+  every testimonial — every single spot the copy used an em or en dash as punctuation, which in
+  natural marketing copy is constantly. These are the single most fragile bytes in any
+  copy/paste, clipboard, or AI-regeneration pipeline: the moment the file passes through a step
+  that reads or re-saves it under a different encoding than it was written in, every one of
+  these multi-byte characters silently becomes a `?` or `�` (the Unicode replacement character).
+  `<meta charset="UTF-8">` in `<head>` only declares how the *browser* should interpret the bytes
+  it receives; it does nothing to protect the bytes themselves during whatever generated,
+  stored, or transmitted the file before the browser saw it.
 
-  The fix is structural, not a font or encoding fix: **use inline SVG for every icon-like glyph**
-  (as this framework already does everywhere — `Arrow`, `Modal`'s close ×, every icon in §23).
-  An SVG `path`'s `d` attribute is pure ASCII numbers and letters; there is no non-ASCII byte in
-  it to mangle, so it survives any pipeline that would corrupt a literal `×` or `→`. If plain text
-  is truly unavoidable, use the numeric HTML entity (`&#215;` for ×, `&#8594;` for →) rather than
-  the raw character — entities are ASCII too. Never the raw glyph itself.
+  **The fix is structural, not a font or encoding fix, and it differs by where the character
+  lives:**
+  - **Icon glyphs** (an arrow, a close ×, a checkmark): inline SVG, as this framework already
+    does everywhere (`Arrow`, `Modal`'s close icon, every icon in §23). An SVG `path`'s `d`
+    attribute is pure ASCII, so there's no non-ASCII byte in it to mangle.
+  - **Punctuation inside copy** (an em dash joining two clauses, a price range's en dash, a
+    testimonial's dash): **do not use the character at all — use a plain ASCII substitute.**
+    Write `"$60 - $65"` and `"9:00 AM - 9:00 PM"` with a plain hyphen-minus (with a space on each
+    side), not `–`. For a sentence-joining em dash, either restructure the sentence around a
+    comma or period, or fall back to the same spaced hyphen. **A numeric HTML entity (`&mdash;`,
+    `&#8212;`) is *not* a safe substitute here** the way it is for a literal icon glyph in JSX
+    markup: this framework's data architecture (Guardrail 5 / §5 above) keeps all copy in
+    `SITE_DATA` as plain JS string literals, rendered into the page via `{service.description}`-
+    style expressions — and HTML entities only decode inside literal JSX text nodes the JSX
+    parser itself sees (`<p>first &mdash; second</p>`), never inside a plain JS string value
+    passed through a `{}` expression. Put `&mdash;` in a `SITE_DATA` string and the page shows
+    the literal text `&mdash;`, not an em dash — a different bug, not a fix. The plain-hyphen
+    substitute is the one option that's both correct today and immune to whatever the export
+    pipeline does to the byte, because a hyphen-minus is already ASCII.
